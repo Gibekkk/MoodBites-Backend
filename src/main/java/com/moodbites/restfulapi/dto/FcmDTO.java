@@ -17,7 +17,7 @@ public class FcmDTO {
 
     public boolean checkDTO() {
         trim();
-        if(this.fcmToken == null) throw new IllegalArgumentException("Token FCM Tidak Boleh Bernilai NULL");
+        if(this.fcmToken == null) throw new IllegalArgumentException("FCM Token Cannot Be NULL");
         return fcmToken != null;
     }
 

@@ -17,7 +17,7 @@ public class EmailDTO {
     public boolean checkDTO() {
         trim();
         if (this.email == null)
-            throw new IllegalArgumentException("Email Tidak Boleh Bernilai NULL");
+            throw new IllegalArgumentException("Email Cannot Be NULL");
         return this.email != null && checkLength();
     }
 
@@ -27,7 +27,7 @@ public class EmailDTO {
                 .orElse(true);
         
         if (!email)
-            throw new IllegalArgumentException("Email Tidak Valid atau Melewati Batas Karakter");
+            throw new IllegalArgumentException("Email Invalid or Exceeded Max Length");
 
         return email;
     }

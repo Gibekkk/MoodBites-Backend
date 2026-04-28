@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 
 import com.moodbites.restfulapi.model.OTP;
 import com.moodbites.restfulapi.model.User;
-import com.moodbites.restfulapi.model.enums.OTPType;
 import com.moodbites.restfulapi.repository.OTPRepository;
-import com.moodbites.restfulapi.repository.LoginRepository;
+import com.moodbites.restfulapi.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -23,7 +22,7 @@ public class OTPService {
     private OTPRepository otpRepository;
 
     @Autowired
-    private LoginRepository loginRepository;
+    private UserRepository userRepository;
 
     // @Autowired
     // private CleanUpService cleanUpService;
@@ -33,64 +32,62 @@ public class OTPService {
     private int OTP_CLEAR = 30;
 
     @Transactional
-    public void deleteOTP(OTP otp, boolean removeLogin) {
-        boolean isRegistration = otp.getOtpType() == OTPType.REGISTER;
-        User login = otp.getIdLogin();
+    public void deleteOTP(OTP otp) {
+        User user = otp.getUserId();
 
-        login.setOtp(null);
-        otp.setIdLogin(null);
+        user.setOtp(null);
+        otp.setUserId(null);
 
         otpRepository.delete(otp);
-        if (isRegistration && removeLogin)
-            // cleanUpService.cleanLogin(login);
-                loginRepository.delete(login);
+        if (user.getVerifiedAt() == null)
+            // cleanUpService.cleanLogin(user);
+                userRepository.delete(user);
     }
 
     // Generate dan simpan OTP
-    public OTP generateOTP(User login, OTPType otpType) {
-        clearExistingOTP(login);
+    public OTP generateOTP(User user) {
+        clearExistingOTP(user);
         String code = String.format("%0" + OTP_LENGTH + "d", new Random().nextInt(999_999));
         LocalDateTime expiry = LocalDateTime.now().plusMinutes(OTP_TIME_OUT);
         OTP otp = new OTP();
         otp.setId(null);
-        otp.setIdLogin(login);
-        otp.setKode(code);
+        otp.setUserId(user);
+        otp.setCode(code);
         otp.setValidUntil(expiry);
-        otp.setOtpType(otpType);
         otp.setCreatedAt(LocalDateTime.now());
         otp.setEditedAt(LocalDateTime.now());
         otpRepository.save(otp);
         return otp;
     }
 
-    public Optional<OTP> refreshOTP(User login) {
+    public Optional<OTP> refreshOTP(User user) {
         String code = String.format("%0" + OTP_LENGTH + "d", new Random().nextInt(999_999));
         LocalDateTime expiry = LocalDateTime.now().plusMinutes(OTP_TIME_OUT);
-        Optional<OTP> existingOtp = otpRepository.findByIdLogin(login);
+        Optional<OTP> existingOtp = otpRepository.findByIdUser(user);
         if (existingOtp.isPresent()) {
             OTP otp = existingOtp.get();
             otp.setValidUntil(expiry);
-            otp.setKode(code);
+            otp.setCode(code);
             otpRepository.save(otp);
             return Optional.of(otp);
         }
         return Optional.empty();
     }
 
-    // public Boolean deleteOTP(Login login) {
-    //     Optional<OTP> existingOtp = otpRepository.findByIdLogin(login);
+    // public Boolean deleteOTP(Login user) {
+    //     Optional<OTP> existingOtp = otpRepository.findByIdUser(user);
     //     if (existingOtp.isPresent()) {
-    //         clearExistingOTP(login);
+    //         clearExistingOTP(user);
     //         return true;
     //     }
     //     return false;
     // }
 
-    public void clearExistingOTP(User login) {
-        Optional<OTP> existingOtp = otpRepository.findByIdLogin(login);
+    public void clearExistingOTP(User user) {
+        Optional<OTP> existingOtp = otpRepository.findByIdUser(user);
         if (existingOtp.isPresent()) {
             OTP otp = existingOtp.get();
-            deleteOTP(otp, true);
+            deleteOTP(otp);
         }
     }
 
@@ -99,20 +96,19 @@ public class OTPService {
         List<OTP> otps = otpRepository.findAll();
         for (OTP otp : otps) {
             if (otp.getValidUntil().plusMinutes(OTP_CLEAR).isBefore(LocalDateTime.now())) {
-                boolean isRegistration = otp.getOtpType() == OTPType.REGISTER;
-                deleteOTP(otp, isRegistration);
+                deleteOTP(otp);
             }
         }
     }
 
     @Transactional
-    public Optional<User> verifyOTP(String loginId, String code) {
+    public Optional<User> verifyOTP(String userId, String code) {
         List<OTP> otps = otpRepository.findAll();
         for (OTP otp : otps) {
-            if (otp.getIdLogin().getId().equals(loginId) && otp.getKode().equals(code)
+            if (otp.getUserId().getId().equals(userId) && otp.getCode().equals(code)
                     && otp.getValidUntil().isAfter(LocalDateTime.now())) {
-                User tempLogin = otp.getIdLogin();
-                deleteOTP(otp, false);
+                User tempLogin = otp.getUserId();
+                deleteOTP(otp);
                 return Optional.of(tempLogin);
             }
         }

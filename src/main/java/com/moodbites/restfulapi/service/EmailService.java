@@ -8,7 +8,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import com.moodbites.restfulapi.dto.EmailDetails;
-import com.moodbites.restfulapi.model.Login;
+import com.moodbites.restfulapi.model.User;
 
 import jakarta.mail.internet.MimeMessage;
 
@@ -45,15 +45,15 @@ public class EmailService {
         }
     }
 
-    public void sendOTPRegisToLogin(Login login, OTP otp) {
+    public void sendOTPRegisToLogin(User user, OTP otp) {
         StringBuilder htmlContent = new StringBuilder();
         htmlContent.append("<html>");
         htmlContent.append("<body>");
-        htmlContent.append("<p>Halo ").append(login.getIdToko().getNama()).append(",</p>");
+        htmlContent.append("<p>Halo ").append(user.getName()).append(",</p>");
         htmlContent.append("<p>Terima kasih telah bergabung bersama kami.</p>");
         htmlContent.append("<p>Untuk memverifikasi akun Anda, silakan gunakan kode OTP berikut:</p><p></p>");
         htmlContent.append("<p>Kode OTP Anda: </p>");
-        htmlContent.append("<p style='font-size: 20px; color: blue;'>").append(otp.getKode()).append("</p><p></p>");
+        htmlContent.append("<p style='font-size: 20px; color: blue;'>").append(otp.getCode()).append("</p><p></p>");
         htmlContent.append("<p>Kode ini hanya berlaku selama 5 menit sejak email ini diterima.</p><p></p>");
         htmlContent.append("<p>Jika Anda merasa tidak melakukan pendaftaran, abaikan email ini.</p><p></p>");
         htmlContent.append("<p><strong>Salam hangat, Tim Development</strong></p>");
@@ -61,7 +61,7 @@ public class EmailService {
         htmlContent.append("</html>");
 
         EmailDetails details = new EmailDetails();
-        details.setRecipient(login.getEmail());
+        details.setRecipient(user.getEmail());
         details.setSubject("Kode OTP Anda");
         details.setMsgBody(htmlContent.toString());
 

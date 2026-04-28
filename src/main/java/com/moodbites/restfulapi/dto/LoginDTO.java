@@ -21,11 +21,11 @@ public class LoginDTO {
         trim();
         checkLength();
         if (this.email == null)
-            throw new IllegalArgumentException("Email Tidak Boleh Bernilai NULL");
+            throw new IllegalArgumentException("Email Cannot Be NULL");
         if (this.password == null)
-            throw new IllegalArgumentException("Password Tidak Boleh Bernilai NULL");
+            throw new IllegalArgumentException("Password Cannot Be NULL");
         if (this.fcmToken == null)
-            throw new IllegalArgumentException("Token FCM Tidak Boleh Bernilai NULL");
+            throw new IllegalArgumentException("FCM Token Cannot Be NULL");
     }
 
     public void checkLength() {
@@ -34,7 +34,7 @@ public class LoginDTO {
                 .orElse(true);
 
         if (!email)
-            throw new IllegalArgumentException("Email Tidak Valid atau Melewati Batas Karakter");
+            throw new IllegalArgumentException("Email Invalid or Exceeded Max Length");
     }
 
     public void trim() {

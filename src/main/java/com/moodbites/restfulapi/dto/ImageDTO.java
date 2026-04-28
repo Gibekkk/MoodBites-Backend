@@ -24,13 +24,13 @@ public class ImageDTO {
         if (this.image != null && !this.image.isEmpty()) {
             try {
                 BufferedImage image = ImageIO.read(this.image.getInputStream());
-                if(image == null) throw new IllegalArgumentException("Gambar Tidak Dapat Diakses");
+                if(image == null) throw new IllegalArgumentException("Image Cannot Be Accessed");
                 return image != null;
             } catch (IOException e) {
                 e.printStackTrace();
-                throw new IllegalArgumentException("Gambar Tidak Dapat Diakses");
+                throw new IllegalArgumentException("Image Cannot Be Accessed");
             }
         }
-        throw new IllegalArgumentException("Gambar Kosong");
+        throw new IllegalArgumentException("Image Cannot Be Empty");
     }
 }
