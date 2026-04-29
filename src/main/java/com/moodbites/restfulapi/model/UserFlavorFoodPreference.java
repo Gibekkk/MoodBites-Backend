@@ -34,8 +34,8 @@ public class UserFlavorFoodPreference {
     private UserFlavorPreference userFlavorPreferenceId;
 
     @ManyToOne
-    @JoinColumn(nullable = false, name = "sample_foods_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_userFlavorFoodPreferenceSampleFoods"))
-    private SampleFoods sampleFoodsId;
+    @JoinColumn(nullable = false, name = "sample_food_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_userFlavorFoodPreferenceSampleFoods"))
+    private SampleFoods sampleFoodId;
 
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;

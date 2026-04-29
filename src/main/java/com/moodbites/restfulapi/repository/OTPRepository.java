@@ -7,5 +7,5 @@ import com.moodbites.restfulapi.model.OTP;
 import com.moodbites.restfulapi.model.User;
 
 public interface OTPRepository extends JpaRepository<OTP, String> {
-    Optional<OTP> findByIdUser(User IdLogin);
+    Optional<OTP> findByUserId(User userId);
 }

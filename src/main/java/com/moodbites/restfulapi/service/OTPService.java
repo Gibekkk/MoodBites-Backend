@@ -63,7 +63,7 @@ public class OTPService {
     public Optional<OTP> refreshOTP(User user) {
         String code = String.format("%0" + OTP_LENGTH + "d", new Random().nextInt(999_999));
         LocalDateTime expiry = LocalDateTime.now().plusMinutes(OTP_TIME_OUT);
-        Optional<OTP> existingOtp = otpRepository.findByIdUser(user);
+        Optional<OTP> existingOtp = otpRepository.findByUserId(user);
         if (existingOtp.isPresent()) {
             OTP otp = existingOtp.get();
             otp.setValidUntil(expiry);
@@ -75,7 +75,7 @@ public class OTPService {
     }
 
     // public Boolean deleteOTP(Login user) {
-    //     Optional<OTP> existingOtp = otpRepository.findByIdUser(user);
+    //     Optional<OTP> existingOtp = otpRepository.findByUserId(user);
     //     if (existingOtp.isPresent()) {
     //         clearExistingOTP(user);
     //         return true;
@@ -84,7 +84,7 @@ public class OTPService {
     // }
 
     public void clearExistingOTP(User user) {
-        Optional<OTP> existingOtp = otpRepository.findByIdUser(user);
+        Optional<OTP> existingOtp = otpRepository.findByUserId(user);
         if (existingOtp.isPresent()) {
             OTP otp = existingOtp.get();
             deleteOTP(otp);

@@ -101,7 +101,7 @@ public class AuthService {
     }
 
     public Optional<Session> findSessionBySessionToken(String sessionToken) {
-        Optional<Session> sessionOpt = sessionRepository.findByToken(sessionToken);
+        Optional<Session> sessionOpt = sessionRepository.findById(sessionToken);
         return sessionOpt;
     }
 
