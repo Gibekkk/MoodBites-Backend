@@ -1,25 +1,18 @@
 package com.moodbites.restfulapi;
 
-import java.io.IOException;
-import java.util.TimeZone;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.TimeZone;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import jakarta.annotation.PostConstruct;
 
-import com.google.auth.oauth2.GoogleCredentials;
-import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.messaging.FirebaseMessaging;
+import jakarta.annotation.PostConstruct;
 
 @SpringBootApplication
 @EnableAsync
@@ -28,6 +21,9 @@ public class MoodBitesApplication implements CommandLineRunner {
 
     // @Value("${firebase.config.name}")
     // private String firebaseConfig;
+
+    @Value("${server.port}")
+    private String runningPort;
 
     // @Bean
     // FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
@@ -60,6 +56,8 @@ public class MoodBitesApplication implements CommandLineRunner {
                 + LocalDateTime.now().format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
         System.out.println("UTC Time: "
                 + LocalDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
+        System.out.println("Server Running On: http://localhost:" + runningPort);
+        System.out.println("Documentation On: http://localhost:" + runningPort + "/swagger-ui-custom.html");
         // initializeSeeder();
     }
 

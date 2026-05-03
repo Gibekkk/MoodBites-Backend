@@ -9,11 +9,11 @@
 		<relativePath />
 		<!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.salescar</groupId>
+	<groupId>com.moodbites</groupId>
 	<artifactId>restfulapi</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>restfulapi</name>
-	<description>RENTAL CAR RESTFUL API APPLICATION</description>
+	<description>MoodBites Backend Application</description>
 	<properties>
 		<java.version>17</java.version>
 	</properties>

@@ -131,7 +131,7 @@ class AuthServiceTest {
         when(userRepository.save(any())).thenReturn(savedUser);
         when(sessionRepository.save(any())).thenReturn(new Session());
 
-        User result = authService.RegisterToko("john@mail.com", "pass123", "fcm-token", "John");
+        User result = authService.registerUser("john@mail.com", "pass123", "fcm-token", "John");
 
         assertThat(result.getEmail()).isEqualTo("john@mail.com");
         assertThat(result.getName()).isEqualTo("John");
@@ -148,7 +148,7 @@ class AuthServiceTest {
         when(userRepository.save(any())).thenReturn(savedUser);
         when(sessionRepository.save(any())).thenReturn(new Session());
 
-        authService.RegisterToko("john@mail.com", "pass123", "fcm-token", "John");
+        authService.registerUser("john@mail.com", "pass123", "fcm-token", "John");
 
         verify(passwordMaker).hashPassword("pass123");
         verify(userRepository).save(argThat(user ->
@@ -165,7 +165,7 @@ class AuthServiceTest {
         when(userRepository.save(any())).thenReturn(savedUser);
         when(sessionRepository.save(any())).thenReturn(new Session());
 
-        authService.RegisterToko("john@mail.com", "pass123", "fcm-token", "John");
+        authService.registerUser("john@mail.com", "pass123", "fcm-token", "John");
 
         // pastikan urutan: save user DULU, baru save session
         var order = inOrder(userRepository, sessionRepository);

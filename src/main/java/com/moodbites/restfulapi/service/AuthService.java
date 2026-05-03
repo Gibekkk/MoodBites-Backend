@@ -81,7 +81,7 @@ public class AuthService {
         return sessionRepository.save(session);
     }
 
-    public User RegisterToko(String email, String password, String fcmToken, String name) {
+    public User registerUser(String email, String password, String fcmToken, String name) {
         User newUser = new User();
         newUser.setName(name);
         newUser.setEmail(email);
