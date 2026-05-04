@@ -133,6 +133,7 @@ public class AuthController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(data);
     }
+    
 
     @PostMapping("/refreshOtp/{loginId}")
     public ResponseEntity<Object> refreshOtp(@PathVariable String loginId) {
