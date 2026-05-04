@@ -32,14 +32,7 @@ pipeline {
             }
         }
 
-        stage('Build') {
-            steps {
-                sh 'mvn clean package -DskipTests'
-                sh 'docker build -t ${IMAGE_NAME}:${IMAGE_TAG} .'
-            }
-        }
-
-        stage('Deploy') {
+        stage('Build & Deploy') {
             steps {
                 withCredentials([
                     file(credentialsId: 'moodbites-env-file', variable: 'ENV_FILE'),
@@ -50,31 +43,27 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        # Kirim image ke host
-                        docker save ${IMAGE_NAME}:${IMAGE_TAG} | \
-                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no \
-                            $SSH_USER@${HOST_IP} "docker load"
+                        # Kirim env ke host
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no \
+                            $ENV_FILE $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/.env
 
                         # Kirim compose file ke host
                         scp -i $SSH_KEY -o StrictHostKeyChecking=no \
                             docker-compose.deploy.yml \
                             $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/docker-compose.yml
 
-                        # Kirim env ke host
-                        scp -i $SSH_KEY -o StrictHostKeyChecking=no \
-                            $ENV_FILE $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/.env
-
-                        # Deploy di host
+                        # Build dan deploy di host
                         ssh -i $SSH_KEY -o StrictHostKeyChecking=no \
                             $SSH_USER@${HOST_IP} "
+                                cd ${DEPLOY_DIR} &&
+                                git pull &&
+                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} . &&
                                 docker compose -f ${DEPLOY_DIR}/docker-compose.yml \
                                     --env-file ${DEPLOY_DIR}/.env \
-                                    down || true
-
+                                    down || true &&
                                 docker compose -f ${DEPLOY_DIR}/docker-compose.yml \
                                     --env-file ${DEPLOY_DIR}/.env \
-                                    up -d
-
+                                    up -d &&
                                 rm -f ${DEPLOY_DIR}/.env
                             "
                     '''
