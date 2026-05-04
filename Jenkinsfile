@@ -8,8 +8,9 @@ pipeline {
     environment {
         IMAGE_NAME = 'moodbites-api'
         IMAGE_TAG  = '0.0.1'
-        DEPLOY_DIR = '/opt/moodbites'
-        HOST_IP    = '10.1.49.196'  // ganti IP host
+        DEPLOY_DIR = '/home/moodbites/moodbites/moodbites-backend'
+        HOST_IP    = '103.185.52.161'
+        HOST_USER  = 'moodbites'
     }
 
     stages {
@@ -59,10 +60,14 @@ pipeline {
                         # Kirim image ke host
                         docker save ${IMAGE_NAME}:${IMAGE_TAG} | \
                         ssh -i $SSH_KEY -o StrictHostKeyChecking=no \
-                            $SSH_USER@${HOST_IP} \
-                            "docker load"
+                            $SSH_USER@${HOST_IP} "docker load"
 
-                        # Kirim env file ke host
+                        # Kirim compose file ke host
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no \
+                            docker-compose.deploy.yml \
+                            $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/docker-compose.yml
+
+                        # Kirim env ke host
                         scp -i $SSH_KEY -o StrictHostKeyChecking=no \
                             $ENV_FILE $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/.env
 
@@ -87,7 +92,7 @@ pipeline {
 
     post {
         success {
-            echo 'Pipeline berhasil! Moodbites API jalan di port 8080.'
+            echo 'Pipeline berhasil! Moodbites API jalan di port 8000.'
         }
         failure {
             echo 'Pipeline gagal! Periksa log di atas.'
