@@ -23,17 +23,10 @@ pipeline {
 
         stage('Test') {
             steps {
-                withCredentials([file(credentialsId: 'moodbites-env-file', variable: 'ENV_FILE')]) {
-                    sh 'cp $ENV_FILE .env'
-                }
-                sh 'docker compose up -d mariadb'
-                sh 'sleep 30'
                 sh 'mvn test'
             }
             post {
                 always {
-                    sh 'docker compose down'
-                    sh 'rm -f .env'
                     junit '**/target/surefire-reports/*.xml'
                 }
             }
