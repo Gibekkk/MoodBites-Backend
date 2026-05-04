@@ -3,6 +3,8 @@ services:
     image: mariadb:11
     container_name: moodbites-mariadb
     restart: unless-stopped
+    ports:
+      - "6767:3306"
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
       MYSQL_DATABASE: ${DB_NAME}
