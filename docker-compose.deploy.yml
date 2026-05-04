@@ -18,6 +18,7 @@ services:
 
   app:
     image: moodbites-api:0.0.1
+    pull_policy: never
     container_name: moodbites-app
     restart: unless-stopped
     depends_on:

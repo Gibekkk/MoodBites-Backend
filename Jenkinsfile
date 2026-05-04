@@ -56,11 +56,13 @@ pipeline {
                         ssh -i $SSH_KEY -o StrictHostKeyChecking=no \
                             $SSH_USER@${HOST_IP} "
                                 cd ${DEPLOY_DIR} &&
-                                git pull &&
-                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} . &&
+                                git fetch origin &&
+                                git reset --hard origin/main &&
+                                git clean -fd &&
                                 docker compose -f ${DEPLOY_DIR}/docker-compose.yml \
                                     --env-file ${DEPLOY_DIR}/.env \
                                     down || true &&
+                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} . &&
                                 docker compose -f ${DEPLOY_DIR}/docker-compose.yml \
                                     --env-file ${DEPLOY_DIR}/.env \
                                     up -d &&
