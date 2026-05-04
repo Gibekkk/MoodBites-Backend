@@ -43,26 +43,30 @@ pipeline {
                     )
                 ]) {
                     sh '''
-                        # Kirim env ke host
-                        scp -i $SSH_KEY -o StrictHostKeyChecking=no \
-                            $ENV_FILE $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/.env
-
-                        # Kirim compose file ke host
-                        scp -i $SSH_KEY -o StrictHostKeyChecking=no \
-                            docker-compose.deploy.yml \
-                            $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/docker-compose.yml
-
-                        # Build dan deploy di host
+                        # Reset repo di host
                         ssh -i $SSH_KEY -o StrictHostKeyChecking=no \
                             $SSH_USER@${HOST_IP} "
                                 cd ${DEPLOY_DIR} &&
                                 git fetch origin &&
                                 git reset --hard origin/main &&
-                                git clean -fd &&
+                                git clean -fd
+                            "
+
+                        # Kirim compose dan env setelah git reset
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no \
+                            docker-compose.deploy.yml \
+                            $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/docker-compose.yml
+
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no \
+                            $ENV_FILE $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/.env
+
+                        # Build dan deploy di host
+                        ssh -i $SSH_KEY -o StrictHostKeyChecking=no \
+                            $SSH_USER@${HOST_IP} "
                                 docker compose -f ${DEPLOY_DIR}/docker-compose.yml \
                                     --env-file ${DEPLOY_DIR}/.env \
                                     down || true &&
-                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} . &&
+                                docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ${DEPLOY_DIR} &&
                                 docker compose -f ${DEPLOY_DIR}/docker-compose.yml \
                                     --env-file ${DEPLOY_DIR}/.env \
                                     up -d &&
