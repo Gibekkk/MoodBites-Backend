@@ -1,5 +1,6 @@
 package com.moodbites.restfulapi;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -9,8 +10,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+
+import com.google.auth.oauth2.GoogleCredentials;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import jakarta.annotation.PostConstruct;
 
@@ -19,32 +27,32 @@ import jakarta.annotation.PostConstruct;
 @EnableScheduling
 public class MoodBitesApplication implements CommandLineRunner {
 
-    // @Value("${firebase.config.name}")
-    // private String firebaseConfig;
+    @Value("${firebase.config.name}")
+    private String firebaseConfig;
 
     @Value("${server.port}")
     private String runningPort;
 
-    // @Bean
-    // FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
-    //     return FirebaseMessaging.getInstance(firebaseApp);
-    // }
+    @Bean
+    FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
+        return FirebaseMessaging.getInstance(firebaseApp);
+    }
 
-    // @Bean
-    // FirebaseApp firebaseApp(GoogleCredentials credentials) {
-    //     FirebaseOptions options = FirebaseOptions.builder()
-    //             .setCredentials(credentials)
-    //             .build();
+    @Bean
+    FirebaseApp firebaseApp(GoogleCredentials credentials) {
+        FirebaseOptions options = FirebaseOptions.builder()
+                .setCredentials(credentials)
+                .build();
 
-    //     return FirebaseApp.initializeApp(options);
-    // }
+        return FirebaseApp.initializeApp(options);
+    }
 
-    // @Bean
-    // GoogleCredentials googleCredentials() throws IOException {
-    //     GoogleCredentials googleCredentials = GoogleCredentials.fromStream(
-    //             new ClassPathResource(firebaseConfig).getInputStream());
-    //     return googleCredentials;
-    // }
+    @Bean
+    GoogleCredentials googleCredentials() throws IOException {
+        GoogleCredentials googleCredentials = GoogleCredentials.fromStream(
+                new ClassPathResource(firebaseConfig).getInputStream());
+        return googleCredentials;
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(MoodBitesApplication.class, args);

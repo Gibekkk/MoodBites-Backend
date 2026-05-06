@@ -11,6 +11,7 @@ pipeline {
         DEPLOY_DIR = '/home/moodbites/moodbites/moodbites-backend'
         HOST_IP    = '103.185.52.161'
         HOST_USER  = 'moodbites'
+        FIREBASE_FILE_NAME  = 'moodbites-7650f-firebase-adminsdk-fbsvc-1c0415a063.json'
     }
 
     stages {
@@ -36,6 +37,7 @@ pipeline {
             steps {
                 withCredentials([
                     file(credentialsId: 'moodbites-env-file', variable: 'ENV_FILE'),
+                    file(credentialsId: 'moodbites-firebase-secret', variable: 'FIREBASE_FILE'),
                     sshUserPrivateKey(
                         credentialsId: 'moodbites-host-ssh',
                         keyFileVariable: 'SSH_KEY',
@@ -52,13 +54,17 @@ pipeline {
                                 git clean -fd
                             "
 
-                        # Kirim compose dan env setelah git reset
+                        # Kirim compose, env, dan firebase secret
                         scp -i $SSH_KEY -o StrictHostKeyChecking=no \
                             docker-compose.deploy.yml \
                             $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/docker-compose.yml
 
                         scp -i $SSH_KEY -o StrictHostKeyChecking=no \
                             $ENV_FILE $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/.env
+
+                        scp -i $SSH_KEY -o StrictHostKeyChecking=no \
+                            $FIREBASE_FILE \
+                            $SSH_USER@${HOST_IP}:${DEPLOY_DIR}/src/main/resources/${FIREBASE_FILE_NAME}
 
                         # Build dan deploy di host
                         ssh -i $SSH_KEY -o StrictHostKeyChecking=no \
@@ -76,7 +82,6 @@ pipeline {
                 }
             }
         }
-    }
 
     post {
         success {

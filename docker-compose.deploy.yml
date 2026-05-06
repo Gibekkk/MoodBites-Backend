@@ -41,5 +41,18 @@ services:
       SERVER_IMAGE_HOST: ${SERVER_IMAGE_HOST}
       FIREBASE_CONFIG_NAME: ${FIREBASE_CONFIG_NAME}
 
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: moodbites-phpmyadmin
+    restart: unless-stopped
+    depends_on:
+      - mariadb
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
+
 volumes:
   moodbites_db:

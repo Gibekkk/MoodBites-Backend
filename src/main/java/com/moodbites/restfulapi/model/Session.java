@@ -47,7 +47,4 @@ public class Session {
     @Column(name = "last_seen_at", nullable = false)
     private LocalDateTime lastSeenAt;
 
-    @Column(name = "valid_until", nullable = false)
-    private LocalDateTime validUntil;
-
 }
