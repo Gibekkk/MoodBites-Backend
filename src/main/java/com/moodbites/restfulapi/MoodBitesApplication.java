@@ -65,7 +65,7 @@ public class MoodBitesApplication implements CommandLineRunner {
         System.out.println("UTC Time: "
                 + LocalDateTime.now(ZoneOffset.UTC).format(DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss")));
         System.out.println("Server Running On: http://localhost:" + runningPort);
-        System.out.println("Documentation On: http://localhost:" + runningPort + "/swagger-ui-custom.html");
+        System.out.println("Documentation On: http://localhost:" + runningPort + "/swagger-ui");
         // initializeSeeder();
     }
 
