@@ -1,31 +1,9 @@
 services:
-  mariadb:
-    image: mariadb:11
-    container_name: moodbites-mariadb
-    restart: unless-stopped
-    ports:
-      - "6767:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
-      MYSQL_DATABASE: ${DB_NAME}
-      MYSQL_USER: ${DB_USER}
-      MYSQL_PASSWORD: ${DB_PASS}
-    volumes:
-      - moodbites_db:/var/lib/mysql
-    healthcheck:
-      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   app:
     image: moodbites-api:0.0.1
     pull_policy: never
     container_name: moodbites-app
     restart: unless-stopped
-    depends_on:
-      mariadb:
-        condition: service_healthy
     ports:
       - "8000:8080"
     environment:
@@ -34,25 +12,15 @@ services:
       DB_NAME: ${DB_NAME}
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
-      SERVER_PORT: ${SERVER_PORT}
+      SERVER_PORT: 8080
       SMTP_HOST: ${SMTP_HOST}
       SMTP_USER: ${SMTP_USER}
       SMTP_PASS: ${SMTP_PASS}
       SERVER_IMAGE_HOST: ${SERVER_IMAGE_HOST}
       FIREBASE_CONFIG_NAME: ${FIREBASE_CONFIG_NAME}
+    networks:
+      - moodbites-network
 
-  phpmyadmin:
-    image: phpmyadmin:latest
-    container_name: moodbites-phpmyadmin
-    restart: unless-stopped
-    depends_on:
-      - mariadb
-    ports:
-      - "8090:80"
-    environment:
-      PMA_HOST: mariadb
-      PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASS}
-
-volumes:
-  moodbites_db:
+networks:
+  moodbites-network:
+    external: true
