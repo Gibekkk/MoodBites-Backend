@@ -45,35 +45,34 @@ public class AuthController {
 
     private Object data = "";
 
-    // @PostMapping("/login/toko")
-    // public ResponseEntity<Object> login(@RequestBody LoginDTO loginDTO) {
-    //     HTTPCode httpCode = HTTPCode.OK;
-    //     try {
-    //         loginDTO.checkDTO();
-    //         Optional<Session> sessionOpt = authService.authenticateUser(loginDTO.getEmail(), loginDTO.getPassword(),
-    //                 loginDTO.getFcmToken());
-    //         if (sessionOpt.isPresent()) {
-    //             Session session = sessionOpt.get();
-    //             data = Map.of(
-    //                     "loginId", session.getIdLogin().getId(),
-    //                     "tokoId", session.getIdLogin().getIdToko().getId(),
-    //                     "token", session.getToken());
-    //         } else {
-    //             httpCode = HTTPCode.UNAUTHORIZED;
-    //             data = new ErrorMessage(httpCode, "Email atau Password Salah");
-    //         }
-    //     } catch (IllegalArgumentException e) {
-    //         httpCode = HTTPCode.BAD_REQUEST;
-    //         data = new ErrorMessage(httpCode, e.getMessage());
-    //     } catch (Exception e) {
-    //         httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
-    //         data = new ErrorMessage(httpCode, e.getMessage());
-    //     }
-    //     return ResponseEntity
-    //             .status(httpCode.getStatus())
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .body(data);
-    // }
+    @PostMapping("/login")
+    public ResponseEntity<Object> login(@RequestBody LoginDTO loginDTO) {
+        HTTPCode httpCode = HTTPCode.OK;
+        try {
+            loginDTO.checkDTO();
+            Optional<Session> sessionOpt = authService.authenticateUser(loginDTO.getEmail(), loginDTO.getPassword(),
+                    loginDTO.getFcmToken());
+            if (sessionOpt.isPresent()) {
+                Session session = sessionOpt.get();
+                data = Map.of(
+                        "userId", session.getUserId().getId(),
+                        "token", session.getToken());
+            } else {
+                httpCode = HTTPCode.UNAUTHORIZED;
+                data = new ErrorMessage(httpCode, "Email atau Password Salah");
+            }
+        } catch (IllegalArgumentException e) {
+            httpCode = HTTPCode.BAD_REQUEST;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        } catch (Exception e) {
+            httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        }
+        return ResponseEntity
+                .status(httpCode.getStatus())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(data);
+    }
 
     @PostMapping("/register")
     public ResponseEntity<Object> register(@RequestBody RegisterDTO registerDTO) {
