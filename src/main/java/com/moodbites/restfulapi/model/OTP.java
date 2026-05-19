@@ -33,7 +33,7 @@ public class OTP {
     @JoinColumn(nullable = false, name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_otpUser"))
     private User userId;
 
-    @Column(name = "code", nullable = false, length = 6)
+    @Column(name = "code", nullable = false, length = 4)
     private String code;
 
     @Column(name = "valid_until", nullable = true)

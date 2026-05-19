@@ -27,7 +27,7 @@ public class OTPService {
     // @Autowired
     // private CleanUpService cleanUpService;
 
-    private int OTP_LENGTH = 6;
+    private int OTP_LENGTH = 4;
     private int OTP_TIME_OUT = 5;
     private int OTP_CLEAR = 30;
 
