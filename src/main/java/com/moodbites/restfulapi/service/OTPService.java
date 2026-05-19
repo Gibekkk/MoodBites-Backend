@@ -47,7 +47,7 @@ public class OTPService {
     // Generate dan simpan OTP
     public OTP generateOTP(User user) {
         clearExistingOTP(user);
-        String code = String.format("%0" + OTP_LENGTH + "d", new Random().nextInt(999_999));
+        String code = String.format("%0" + OTP_LENGTH + "d", new Random().nextInt((int) Math.pow(10, OTP_LENGTH)));
         LocalDateTime expiry = LocalDateTime.now().plusMinutes(OTP_TIME_OUT);
         OTP otp = new OTP();
         otp.setId(null);
@@ -61,7 +61,7 @@ public class OTPService {
     }
 
     public Optional<OTP> refreshOTP(User user) {
-        String code = String.format("%0" + OTP_LENGTH + "d", new Random().nextInt(999_999));
+        String code = String.format("%0" + OTP_LENGTH + "d", new Random().nextInt((int) Math.pow(10, OTP_LENGTH)));
         LocalDateTime expiry = LocalDateTime.now().plusMinutes(OTP_TIME_OUT);
         Optional<OTP> existingOtp = otpRepository.findByUserId(user);
         if (existingOtp.isPresent()) {
