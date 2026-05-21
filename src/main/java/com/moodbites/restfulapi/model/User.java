@@ -51,16 +51,16 @@ public class User {
     @Column(name = "verified_at", nullable = true)
     private LocalDateTime verifiedAt;
 
-    #@OneToOne(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
-    #private OTP otp;
+    @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
+    private OTP otp;
 
-    #@OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    #private Set<Notification> notifications;
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Notification> notifications;
 
-    #@OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    #private Set<Session> sessions;
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Session> sessions;
 
-    #@OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    #private Set<UserPreference> userPreferences;
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UserPreference> userPreferences;
 
 }
