@@ -23,11 +23,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
                 .anyRequest().permitAll() // Allow all requests
             )
-            .formLogin(formLogin -> formLogin.disable())
-            .cors(cors -> cors.configurationSource(corsConfigurationSource())) // ← ini dulu
-            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() // ← izinkan semua OPTIONS
-            .requestMatchers("/api/auth/**").permitAll()
-            .anyRequest().authenticated(); // Disable the default login page
+            .formLogin(formLogin -> formLogin.disable()); // Disable the default login page
 
         return http.build();
     }
