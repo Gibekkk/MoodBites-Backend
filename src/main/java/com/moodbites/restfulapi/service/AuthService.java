@@ -105,4 +105,12 @@ public class AuthService {
         return sessionOpt;
     }
 
+    public Session getSessionBySessionToken(String sessionToken) {
+        return findSessionBySessionToken(sessionToken).get();
+    }
+
+    public Boolean checkSessionAlive(String sessionToken) {
+        return findSessionBySessionToken(sessionToken).isPresent();
+    }
+
 }

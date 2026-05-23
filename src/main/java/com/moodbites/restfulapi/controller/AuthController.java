@@ -2,7 +2,7 @@ package com.moodbites.restfulapi.controller;
 
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -141,12 +141,12 @@ public class AuthController {
             if (loginOpt.isPresent()) {
                 User login = loginOpt.get();
                 Optional<OTP> otpOpt = otpService.refreshOTP(login);
-                if(otpOpt.isPresent()) {
+                if (otpOpt.isPresent()) {
                     OTP otp = otpOpt.get();
                     emailService.sendOTPRegisToLogin(login, otp);
-                data = Map.of(
-                        "loginId", login.getId(),
-                        "otpValidUntil", otp.getValidUntil());
+                    data = Map.of(
+                            "loginId", login.getId(),
+                            "otpValidUntil", otp.getValidUntil());
                 } else {
                     httpCode = HTTPCode.NOT_FOUND;
                     data = new ErrorMessage(httpCode, "OTP Tidak Ditemukan");
@@ -169,41 +169,32 @@ public class AuthController {
                 .body(data);
     }
 
-    // @PatchMapping("/profile/toko")
-    // public ResponseEntity<Object> updateProfile(HttpServletRequest request, @RequestBody ProfilDTO profilDTO) {
-    //     String sessionToken = request.getHeader("Token");
-    //     HTTPCode httpCode = HTTPCode.OK;
-    //     try {
-    //         profilDTO.checkDTO();
-    //         Optional<Session> sessionOpt = authService.findSessionBySessionToken(sessionToken);
-    //         if (sessionOpt.isPresent()) {
-    //             Session session = sessionOpt.get();
-    //             if (session.getIdLogin().getLevel() == Level.TOKO) {
-    //                 User toko = session.getIdLogin().getIdToko();
-    //                 toko = authService.editProfilToko(toko, profilDTO.getNama(), profilDTO.getDeskripsi());
-    //                 data = Map.of(
-    //                         "idToko", toko.getId(),
-    //                         "nama", toko.getNama(),
-    //                         "deskripsi", Optional.ofNullable(toko.getDeskripsi()).orElse(""));
-    //             } else {
-    //                 httpCode = HTTPCode.FORBIDDEN;
-    //                 data = new ErrorMessage(httpCode, "Akses Ditolak");
-    //             }
-    //         } else {
-    //             httpCode = HTTPCode.BAD_REQUEST;
-    //             data = new ErrorMessage(httpCode, "Pemeriksaan Autentikasi Gagal");
-    //         }
-    //     } catch (IllegalArgumentException e) {
-    //         httpCode = HTTPCode.BAD_REQUEST;
-    //         data = new ErrorMessage(httpCode, e.getMessage());
-    //     } catch (Exception e) {
-    //         httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
-    //         data = new ErrorMessage(httpCode, e.getMessage());
-    //     }
+    @GetMapping("/check")
+    public ResponseEntity<Object> updateProfile(HttpServletRequest request) {
+        String sessionToken = request.getHeader("Token");
+        HTTPCode httpCode = HTTPCode.OK;
+        try {
+            Optional<Session> sessionOpt = authService.findSessionBySessionToken(sessionToken);
+            if (sessionOpt.isPresent()) {
+                Session session = sessionOpt.get();
+                data = Map.of(
+                        "id", session.getUserId().getId(),
+                        "nama", session.getUserId().getName());
+            } else {
+                httpCode = HTTPCode.FORBIDDEN;
+                data = new ErrorMessage(httpCode, "Pemeriksaan Autentikasi Gagal");
+            }
+        } catch (IllegalArgumentException e) {
+            httpCode = HTTPCode.BAD_REQUEST;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        } catch (Exception e) {
+            httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        }
 
-    //     return ResponseEntity
-    //             .status(httpCode.getStatus())
-    //             .contentType(MediaType.APPLICATION_JSON)
-    //             .body(data);
-    // }
+        return ResponseEntity
+                .status(httpCode.getStatus())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(data);
+    }
 }
