@@ -38,9 +38,6 @@ public class Session {
     @Column(name = "fcm_token", nullable = false, length = 255)
     private String fcmToken;
 
-    @Column(name = "deleted_at", nullable = true)
-    private LocalDateTime deletedAt;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 

@@ -47,7 +47,7 @@ public class ImageController {
                 data = resource;
             } else {
                 httpCode = HTTPCode.NOT_FOUND;
-                data = new ErrorMessage(httpCode, "Gambar Tidak Ditemukan");
+                data = new ErrorMessage(httpCode, "Image Not Found");
             }
         } catch (IllegalArgumentException e) {
             httpCode = HTTPCode.BAD_REQUEST;

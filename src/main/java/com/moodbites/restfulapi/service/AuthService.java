@@ -1,5 +1,6 @@
 package com.moodbites.restfulapi.service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 import java.util.UUID;
 import java.time.LocalDateTime;
@@ -27,6 +28,8 @@ public class AuthService {
     @Autowired
     private PasswordHasherMatcher passwordMaker;
 
+    private final int SESSION_TIMEOUT_MINUTES = 60;
+
     @Transactional
     public void deleteSession(Session session) {
         sessionRepository.delete(session);
@@ -51,9 +54,9 @@ public class AuthService {
         // return userOpt.isEmpty();
 
         // Negate the result to indicate availability (for debugging purposes)
-        if(userOpt.isEmpty())
+        if (userOpt.isEmpty())
             return true;
-        
+
         userRepository.delete(userOpt.get());
         return true;
     }
@@ -67,10 +70,11 @@ public class AuthService {
     }
 
     public Session regenerateSessionToken(User user, String fcmToken) {
-        // Optional<Session> conflictSessionOpt = sessionRepository.findByFcmToken(fcmToken);
+        // Optional<Session> conflictSessionOpt =
+        // sessionRepository.findByFcmToken(fcmToken);
         // if(conflictSessionOpt.isPresent()) {
-        //     Session conflictSession = conflictSessionOpt.get();
-        //     deleteSession(conflictSession);
+        // Session conflictSession = conflictSessionOpt.get();
+        // deleteSession(conflictSession);
         // }
         Session session = new Session();
         session.setUserId(user);
@@ -101,16 +105,22 @@ public class AuthService {
     }
 
     public Optional<Session> findSessionBySessionToken(String sessionToken) {
-        Optional<Session> sessionOpt = sessionRepository.findById(sessionToken);
+        Optional<Session> sessionOpt = sessionRepository.findByToken(sessionToken);
+        if (sessionOpt.isPresent())
+            updateSessionLastSeen(sessionOpt.get());
         return sessionOpt;
     }
 
-    public Session getSessionBySessionToken(String sessionToken) {
-        return findSessionBySessionToken(sessionToken).get();
+    public void updateSessionLastSeen(Session session) {
+        session.setLastSeenAt(LocalDateTime.now());
+        sessionRepository.save(session);
     }
 
-    public Boolean checkSessionAlive(String sessionToken) {
-        return findSessionBySessionToken(sessionToken).isPresent();
+    public void deleteExpiredSessions() {
+        LocalDateTime expiredTime = LocalDateTime.now().minusMinutes(SESSION_TIMEOUT_MINUTES);
+        ArrayList<Session> expiredSessions = sessionRepository.findByLastSeenAtBefore(expiredTime);
+        for (Session session : expiredSessions) {
+            deleteSession(session);
+        }
     }
-
 }

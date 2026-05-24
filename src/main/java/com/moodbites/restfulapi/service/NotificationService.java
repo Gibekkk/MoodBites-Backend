@@ -1,5 +1,6 @@
 package com.moodbites.restfulapi.service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Optional;
 
@@ -25,105 +26,19 @@ public class NotificationService {
         return notificationRepository.findByDeletedAtIsNullAndUserId(user);
     }
 
-    // public Object getNotificationDetailsByUser(String idUser) {
-    //     ArrayList<Notification> listNotification = getNotificationsByUser(idUser);
-    //     ArrayList<Object> result = new ArrayList<Object>();
-    //     if (listNotification.size() > 0) {
-    //         for (Notification notifikasi : listNotification) {
-    //             Agenda agenda = notifikasi.getIdAgenda();
-    //             Reminder reminder = notifikasi.getIdReminder();
-    //             result.add(Map.of(
-    //                     "id", notifikasi.getId(),
-    //                     "message", notifikasi.getDeskripsiNotification(),
-    //                     "dateCreated", notifikasi.getCreatedAt(),
-    //                     "title", notifikasi.getNamaNotification(),
-    //                     "isClicked", notifikasi.getIsRead(),
-    //                     "jenisNotification", notifikasi.getJenisNotification().toString(),
-    //                     "agenda", agenda == null ? ""
-    //                             : Map.of(
-    //                                     "id", agenda.getId(),
-    //                                     "contactName", agenda.getIdKontak().getNama(),
-    //                                     "title", agenda.getNamaAgenda(),
-    //                                     "time", agenda.getJadwalAgenda(),
-    //                                     "isTriggered", agenda.getIsNotified(),
-    //                                     "status", agenda.getStatusAgenda().toString(),
-    //                                     "appointmentPlace", agenda.getLokasiAgenda()),
-    //                     "reminder", reminder == null ? ""
-    //                             : Map.of(
-    //                                     "id", reminder.getId(),
-    //                                     "contactName", reminder.getIdKontak().getNama(),
-    //                                     "notes", reminder.getCatatanReminder(),
-    //                                     "time", reminder.getJadwalReminder(),
-    //                                     "isTriggered", reminder.getIsNotified(),
-    //                                     "frequency", reminder.getPerulangan().toString())));
-    //         }
-    //     }
-    //     return result;
-    // }
+    public void setNotificationRead(Notification notification) {
+        if(notification.getSeenAt() == null) {
+            notification.setSeenAt(LocalDateTime.now());
+            notificationRepository.save(notification);
+        }
+    }
 
-    // public Optional<Notification> deleteNotificationsByUser(String idUser, String notifikasiId) {
-    //     User user = userService.findUserById(idUser).get();
-    //     Optional<Notification> optionalNotification = getNotificationById(notifikasiId);
-    //     if (optionalNotification.isPresent()) {
-    //         Notification notif = optionalNotification.get();
-    //         Boolean pass = false;
-    //         if (!notif.getIsDeleted()) {
-    //             if (notif.getJenisNotification().equals(JenisNotification.AGENDA)) {
-    //                 if (!notif.getIdAgenda().getIsDeleted())
-    //                     pass = true;
-    //             } else if (notif.getJenisNotification().equals(JenisNotification.REMINDER)) {
-    //                 if (!notif.getIdReminder().getIsDeleted())
-    //                     pass = true;
-    //             } else {
-    //                 pass = true;
-    //             }
-    //         }
-    //         if (pass) {
-    //             if (notif.getIdUser().equals(user)) {
-    //                 notif.setIsDeleted(true);
-    //                 notif.setDeletedAt(LocalDate.now());
-    //                 return Optional.of(notificationRepository.save(notif));
-    //             }
-    //         }
-    //     }
-    //     return Optional.empty();
-    // }
-
-    // public ArrayList<String> deleteNotificationListByUser(String idUser, List<String> notifikasiIdList) {
-    //     ArrayList<String> deletedNotification = new ArrayList<String>();
-    //     for (String idNotification : notifikasiIdList) {
-    //         if (deleteNotificationsByUser(idUser, idNotification).isPresent())
-    //             deletedNotification.add(idNotification);
-    //     }
-    //     return deletedNotification;
-    // }
-
-    // public Optional<Notification> readNotificationsByUser(String idUser, String notifikasiId) {
-    //     User user = userService.findUserById(idUser).get();
-    //     Optional<Notification> optionalNotification = getNotificationById(notifikasiId);
-    //     if (optionalNotification.isPresent()) {
-    //         Notification notif = optionalNotification.get();
-    //         Boolean pass = false;
-    //         if (!notif.getIsDeleted()) {
-    //             if (notif.getJenisNotification().equals(JenisNotification.AGENDA)) {
-    //                 if (!notif.getIdAgenda().getIsDeleted())
-    //                     pass = true;
-    //             } else if (notif.getJenisNotification().equals(JenisNotification.REMINDER)) {
-    //                 if (!notif.getIdReminder().getIsDeleted())
-    //                     pass = true;
-    //             } else {
-    //                 pass = true;
-    //             }
-    //         }
-    //         if (pass) {
-    //             if (notif.getIdUser().equals(user)) {
-    //                 notif.setIsRead(true);
-    //                 return Optional.of(notificationRepository.save(notif));
-    //             }
-    //         }
-    //     }
-    //     return Optional.empty();
-    // }
+    public void deleteNotification(Notification notification) {
+        if(notification.getDeletedAt() == null) {
+            notification.setDeletedAt(LocalDateTime.now());
+            notificationRepository.save(notification);
+        }
+    }
 
     public ArrayList<Notification> getAllNotification() {
         return notificationRepository.findByDeletedAtIsNull();
@@ -133,3 +48,5 @@ public class NotificationService {
         return notificationRepository.findByDeletedAtIsNullAndUserIdAndId(user, idNotification);
     }
 }
+
+

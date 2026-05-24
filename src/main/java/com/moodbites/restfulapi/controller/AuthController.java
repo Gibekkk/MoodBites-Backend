@@ -59,7 +59,7 @@ public class AuthController {
                         "token", session.getToken());
             } else {
                 httpCode = HTTPCode.UNAUTHORIZED;
-                data = new ErrorMessage(httpCode, "Email atau Password Salah");
+                data = new ErrorMessage(httpCode, "Email or Password is Incorrect");
             }
         } catch (IllegalArgumentException e) {
             httpCode = HTTPCode.BAD_REQUEST;
@@ -118,7 +118,7 @@ public class AuthController {
                         "token", session.getToken());
             } else {
                 httpCode = HTTPCode.UNAUTHORIZED;
-                data = new ErrorMessage(httpCode, "OTP Tidak Valid atau Telah Kedaluwarsa");
+                data = new ErrorMessage(httpCode, "OTP Not Valid or Has Expired");
             }
         } catch (IllegalArgumentException e) {
             httpCode = HTTPCode.BAD_REQUEST;
@@ -149,12 +149,12 @@ public class AuthController {
                             "otpValidUntil", otp.getValidUntil());
                 } else {
                     httpCode = HTTPCode.NOT_FOUND;
-                    data = new ErrorMessage(httpCode, "OTP Tidak Ditemukan");
+                    data = new ErrorMessage(httpCode, "OTP Not Found");
                 }
 
             } else {
                 httpCode = HTTPCode.UNAUTHORIZED;
-                data = new ErrorMessage(httpCode, "Login ID Tidak Ditemukan");
+                data = new ErrorMessage(httpCode, "Login ID Not Found");
             }
         } catch (IllegalArgumentException e) {
             httpCode = HTTPCode.BAD_REQUEST;
@@ -170,7 +170,7 @@ public class AuthController {
     }
 
     @GetMapping("/check")
-    public ResponseEntity<Object> updateProfile(HttpServletRequest request) {
+    public ResponseEntity<Object> checkToken(HttpServletRequest request) {
         String sessionToken = request.getHeader("Token");
         HTTPCode httpCode = HTTPCode.OK;
         try {
@@ -182,7 +182,7 @@ public class AuthController {
                         "nama", session.getUserId().getName());
             } else {
                 httpCode = HTTPCode.FORBIDDEN;
-                data = new ErrorMessage(httpCode, "Pemeriksaan Autentikasi Gagal");
+                data = new ErrorMessage(httpCode, "Authentication Failed");
             }
         } catch (IllegalArgumentException e) {
             httpCode = HTTPCode.BAD_REQUEST;

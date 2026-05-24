@@ -20,11 +20,11 @@ public class CustomErrorController implements ErrorController {
         int statusCode = (Integer) request.getAttribute("jakarta.servlet.error.status_code");
         HTTPCode httpCode = HTTPCode.fromCode(statusCode);
         if (httpCode.equals(HTTPCode.NOT_FOUND)) {
-            data = new ErrorMessage(httpCode, "Rute Tidak Ditemukan");
+            data = new ErrorMessage(httpCode, "Route Not Found");
         } else if (httpCode.equals(HTTPCode.METHOD_NOT_ALLOWED)) {
-            data = new ErrorMessage(httpCode, "Metode Untuk Rute Ini Salah");
+            data = new ErrorMessage(httpCode, "Method For This Route Is Incorrect");
         } else {
-            data = new ErrorMessage(httpCode, "Error Tidak Diketahui Terjadi Di Luar API Utama");
+            data = new ErrorMessage(httpCode, "Unknown Error Occurred Outside Main API");
         }
 
         return ResponseEntity
