@@ -3,8 +3,12 @@ package com.moodbites.restfulapi.model;
 import java.time.LocalDateTime;
 import java.util.Set;
 
+import com.moodbites.restfulapi.model.enums.Mood;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
@@ -37,9 +41,9 @@ public class UserPreference {
     @JoinColumn(nullable = false, name = "user_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_userPreferenceUser"))
     private User userId;
 
-    @ManyToOne
-    @JoinColumn(nullable = false, name = "mood_id", referencedColumnName = "id", foreignKey = @ForeignKey(name = "fk_userPreferenceMood"))
-    private Moods moodId;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "mood", nullable = false)
+    private Mood mood;
 
     @Column(name = "deleted_at", nullable = true)
     private LocalDateTime deletedAt;
