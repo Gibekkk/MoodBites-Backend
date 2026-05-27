@@ -96,7 +96,7 @@ public class FormService {
                 userFlavorPreferenceRepository.save(userFlavorPreference);
             }
 
-            clearUserSampleFoodPreferences(user);
+            clearUserSampleFoodPreferences(userPreference);
             if (categories != null && !categories.isEmpty()) {
                 for (String category : categories) {
                     UserSampleFoodPreference userSampleFoodPreference = new UserSampleFoodPreference();
@@ -110,7 +110,7 @@ public class FormService {
     }
 
     @Transactional
-    public void clearUserSampleFoodPreferences(User user) {
-        userSampleFoodPreferenceRepository.deleteAllByUserId(user);
+    public void clearUserSampleFoodPreferences(UserPreference userPreference) {
+        userSampleFoodPreferenceRepository.deleteAllByUserPreferenceId(userPreference);
     }
 }
