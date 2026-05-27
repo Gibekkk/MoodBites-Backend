@@ -45,19 +45,13 @@ public class UserFlavorPreference {
 
     @Max(5)
     @Min(1)
-    @Column(name = "preference_scale", nullable = false)
+    @Column(name = "preference_scale", nullable = true)
     private Integer preferenceScale;
 
     @Max(5)
     @Min(1)
-    @Column(name = "intensity_scale", nullable = false)
+    @Column(name = "intensity_scale", nullable = true)
     private Integer intensityScale;
-
-    @Column(name = "deleted_at", nullable = true)
-    private LocalDateTime deletedAt;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
 
     @Column(name = "edited_at", nullable = false)
     private LocalDateTime editedAt;

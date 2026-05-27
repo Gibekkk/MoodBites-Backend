@@ -41,13 +41,7 @@ public class UserSampleFoodPreference {
     @Column(name = "sample_food", nullable = false)
     private SampleFood sampleFood;
 
-    @Column(name = "deleted_at", nullable = true)
-    private LocalDateTime deletedAt;
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
-
-    @Column(name = "edited_at", nullable = false)
-    private LocalDateTime editedAt;
 
 }

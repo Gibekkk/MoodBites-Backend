@@ -15,6 +15,7 @@ import com.moodbites.restfulapi.dto.LoginDTO;
 import com.moodbites.restfulapi.dto.RegisterDTO;
 import com.moodbites.restfulapi.dto.VerifyOTPDTO;
 import com.moodbites.restfulapi.service.EmailService;
+import com.moodbites.restfulapi.service.FormService;
 import com.moodbites.restfulapi.service.OTPService;
 import com.moodbites.restfulapi.service.AuthService;
 import com.moodbites.restfulapi.util.ErrorMessage;
@@ -36,6 +37,9 @@ public class AuthController {
 
     @Autowired
     private AuthService authService;
+
+    @Autowired
+    private FormService formService;
 
     @Autowired
     private OTPService otpService;
@@ -109,12 +113,13 @@ public class AuthController {
         HTTPCode httpCode = HTTPCode.OK;
         try {
             verifyOTPDTO.checkDTO();
-            Optional<User> loginOpt = otpService.verifyOTP(verifyOTPDTO.getLoginId(), verifyOTPDTO.getCode());
-            if (loginOpt.isPresent()) {
-                User login = loginOpt.get();
-                Session session = authService.verifyUser(login);
+            Optional<User> userOpt = otpService.verifyOTP(verifyOTPDTO.getLoginId(), verifyOTPDTO.getCode());
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                Session session = authService.verifyUser(user);
+                formService.createUserPreferences(user);
                 data = Map.of(
-                        "loginId", session.getUserId().getId(),
+                        "userId", session.getUserId().getId(),
                         "token", session.getToken());
             } else {
                 httpCode = HTTPCode.UNAUTHORIZED;
@@ -133,19 +138,19 @@ public class AuthController {
                 .body(data);
     }
 
-    @PostMapping("/refreshOtp/{loginId}")
-    public ResponseEntity<Object> refreshOtp(@PathVariable String loginId) {
+    @PostMapping("/refreshOtp/{userId}")
+    public ResponseEntity<Object> refreshOtp(@PathVariable String userId) {
         HTTPCode httpCode = HTTPCode.OK;
         try {
-            Optional<User> loginOpt = authService.findLoginById(loginId);
-            if (loginOpt.isPresent()) {
-                User login = loginOpt.get();
-                Optional<OTP> otpOpt = otpService.refreshOTP(login);
+            Optional<User> userOpt = authService.findUserById(userId);
+            if (userOpt.isPresent()) {
+                User user = userOpt.get();
+                Optional<OTP> otpOpt = otpService.refreshOTP(user);
                 if (otpOpt.isPresent()) {
                     OTP otp = otpOpt.get();
-                    emailService.sendOTPRegisToLogin(login, otp);
+                    emailService.sendOTPRegisToLogin(user, otp);
                     data = Map.of(
-                            "loginId", login.getId(),
+                            "userId", user.getId(),
                             "otpValidUntil", otp.getValidUntil());
                 } else {
                     httpCode = HTTPCode.NOT_FOUND;

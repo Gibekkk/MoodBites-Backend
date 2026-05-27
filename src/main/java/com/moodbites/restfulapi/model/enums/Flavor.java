@@ -1,6 +1,9 @@
 package com.moodbites.restfulapi.model.enums;
 
-public enum Flavor{
+import java.util.Arrays;
+import java.util.List;
+
+public enum Flavor {
     SWEET("Manis"),
     SPICY("Pedas"),
     SALTY("Asin / Gurih"),
@@ -17,7 +20,18 @@ public enum Flavor{
         return flavor;
     }
 
-    public static boolean checkExist(String flavor){
+    public static List<String> getFlavors() {
+        return Arrays.stream(Flavor.values())
+                .map(f -> f.flavor)
+                .toList();
+    }
+
+    public static List<Flavor> getFlavorList() {
+        return Arrays.stream(Flavor.values())
+                .toList();
+    }
+
+    public static boolean checkExist(String flavor) {
         for (Flavor s : Flavor.values()) {
             if (s.flavor.equalsIgnoreCase(flavor)) {
                 return true;

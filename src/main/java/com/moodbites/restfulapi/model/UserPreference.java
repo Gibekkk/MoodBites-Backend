@@ -45,15 +45,6 @@ public class UserPreference {
     @Column(name = "mood", nullable = false)
     private Mood mood;
 
-    @Column(name = "deleted_at", nullable = true)
-    private LocalDateTime deletedAt;
-
-    @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "edited_at", nullable = false)
-    private LocalDateTime editedAt;
-
     @OneToMany(mappedBy = "userPreferenceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<UserFlavorPreference> userFlavorPreferences;
 

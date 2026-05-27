@@ -61,12 +61,12 @@ public class AuthService {
         return true;
     }
 
-    public Optional<User> findLoginByEmail(String email) {
+    public Optional<User> findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
-    public Optional<User> findLoginById(String loginId) {
-        return userRepository.findById(loginId);
+    public Optional<User> findUserById(String userId) {
+        return userRepository.findById(userId);
     }
 
     public Session regenerateSessionToken(User user, String fcmToken) {

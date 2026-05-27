@@ -1,22 +1,27 @@
 package com.moodbites.restfulapi.model.enums;
 
-public enum SampleFood{
-    NASI_AYAM("Nasi Ayam (Goreng / Panggang)"),
-    NASI_GORENG("Nasi Goreng / Nasi Gila"),
-    OLAHAN_MIE("Olahan Mie (Mie Kuah / Goreng / Yamien)"),
+public enum SampleFood {
+    NASI_GORENG_MERAH("Nasi Goreng Merah"),
+    MIE_GORENG_JAKARTA("Mie Goreng Jakarta"),
+    MIE_KERING_TITI("Mie Kering / Titi"),
+    PAKET_AYAM_GEPREK("Paket Ayam Geprek"),
+    PAKET_TELUR_GIMBAL("Paket Telur Gimbal"),
     BAKSO_KUAH("Bakso Kuah"),
-    CEMILAN_KENTANG("Cemilan Kentang Goreng / Nugget"),
-    CEMILAN_GURIH("Cemilan Gurih (Tahu / Jamur Crispy)"),
-    CEMILAN_MANIS("Cemilan Manis (Pisang / Ubi / Bakara Goreng)"),
-    PUDING_DESSERT("Puding / Dessert Manis"),
-    AIR_MINERAL("Air Mineral"),
-    ES_TEH("Es Teh / Teh Kemasan"),
-    KOPI_KEMASAN("Kopi Kemasan"),
-    MINUMAN_SODA("Minuman Soda"),
-    MINUMAN_SUSU("Minuman Susu / Coklat"),
-    MINUMAN_RASA_BUAH("Minuman Rasa Buah"),
-    MINUMAN_VIT_C("Minuman Vitamin C / Asam Segar"),
-    MINUMAN_ISOTONIK("Minuman Isotonik");
+    BEEF_TERIYAKI("Beef Teriyaki"),
+    BEEF_PATTY("Beef Patty"),
+    KENTANG_GORENG("Kentang Goreng"),
+    UBI_GORENG("Ubi Goreng"),
+    ANEKA_INDOMIE("Aneka Indomie"),
+    NASI_AYAM_PANGGANG("Nasi Ayam Panggang"),
+    NASI_AYAM_LENGKUAS("Nasi Ayam Lengkuas"),
+    MIE_NYEMEK("Mie Nyemek"),
+    MIE_KERING("Mie Kering"),
+    MIE_BAKSO("Mie Bakso"),
+    MIE_GORENG_JAWA("Mie Goreng Jawa"),
+    NASI_GILA("Nasi Gila"),
+    YAMIEN("Yamien"),
+    TAHU_CRISPY("Tahu Crispy"),
+    PISANG_GORENG("Pisang Goreng");
 
     private final String sampleFood;
 
@@ -28,7 +33,7 @@ public enum SampleFood{
         return sampleFood;
     }
 
-    public static boolean checkExist(String sampleFood){
+    public static boolean checkExist(String sampleFood) {
         for (SampleFood s : SampleFood.values()) {
             if (s.sampleFood.equalsIgnoreCase(sampleFood)) {
                 return true;

@@ -1,6 +1,9 @@
 package com.moodbites.restfulapi.model.enums;
 
-public enum Mood{
+import java.util.Arrays;
+import java.util.List;
+
+public enum Mood {
     SAD("Sad"),
     ANGRY("Angry"),
     HAPPY("Happy"),
@@ -12,11 +15,22 @@ public enum Mood{
         this.mood = mood;
     }
 
+    public static List<String> getMoods() {
+        return Arrays.stream(Mood.values())
+                .map(m -> m.mood)
+                .toList();
+    }
+
+    public static List<Mood> getMoodList() {
+        return Arrays.stream(Mood.values())
+                .toList();
+    }
+
     public String toString() {
         return mood;
     }
 
-    public static boolean checkExist(String mood){
+    public static boolean checkExist(String mood) {
         for (Mood s : Mood.values()) {
             if (s.mood.equalsIgnoreCase(mood)) {
                 return true;
