@@ -57,4 +57,7 @@ public class UserPreference {
     @OneToMany(mappedBy = "userPreferenceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<UserFlavorPreference> userFlavorPreferences;
 
+    @OneToMany(mappedBy = "userPreferenceId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UserSampleFoodPreference> userSampleFoodPreferences;
+
 }
