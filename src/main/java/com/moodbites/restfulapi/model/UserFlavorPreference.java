@@ -45,12 +45,12 @@ public class UserFlavorPreference {
 
     @Max(5)
     @Min(1)
-    @Column(name = "preference_scale", nullable = true)
+    @Column(name = "preference_scale", nullable = false)
     private Integer preferenceScale;
 
     @Max(5)
     @Min(1)
-    @Column(name = "intensity_scale", nullable = true)
+    @Column(name = "intensity_scale", nullable = false)
     private Integer intensityScale;
 
     @Column(name = "deleted_at", nullable = true)

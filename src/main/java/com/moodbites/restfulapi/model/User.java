@@ -63,4 +63,7 @@ public class User {
     @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Set<UserPreference> userPreferences;
 
+    @OneToMany(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<UserAllergies> userAllergies;
+
 }
