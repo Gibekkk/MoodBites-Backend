@@ -65,7 +65,7 @@ public class FormService {
     public void updateUserPreferences(User user, MoodFormDTO moodFormDTO) {
         Map<String, MoodProfile> moodProfiles = moodFormDTO.getMoods();
         for (UserPreference userPreference : user.getUserPreferences()) {
-            MoodProfile moodProfile = moodProfiles.get(userPreference.getMood().toString());
+            MoodProfile moodProfile = moodProfiles.get(userPreference.getMood().toString().toLowerCase());
             FlavorProfile desires = moodProfile.getDesire();
             FlavorProfile intensities = moodProfile.getIntensity();
             List<String> categories = moodProfile.getCategories();
@@ -99,6 +99,9 @@ public class FormService {
             clearUserSampleFoodPreferences(userPreference);
             if (categories != null && !categories.isEmpty()) {
                 for (String category : categories) {
+                    if (userSampleFoodPreferenceRepository.findByUserPreferenceIdAndSampleFood(userPreference, SampleFood.fromString(category))
+                            .isPresent())
+                        continue;
                     UserSampleFoodPreference userSampleFoodPreference = new UserSampleFoodPreference();
                     userSampleFoodPreference.setUserPreferenceId(userPreference);
                     userSampleFoodPreference.setSampleFood(SampleFood.fromString(category));
@@ -111,6 +114,8 @@ public class FormService {
 
     @Transactional
     public void clearUserSampleFoodPreferences(UserPreference userPreference) {
-        userSampleFoodPreferenceRepository.deleteAllByUserPreferenceId(userPreference);
+        for (UserSampleFoodPreference userSampleFoodPreference : userPreference.getUserSampleFoodPreferences()) {
+            userSampleFoodPreferenceRepository.delete(userSampleFoodPreference);
+        }
     }
 }

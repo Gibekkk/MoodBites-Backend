@@ -36,7 +36,7 @@ public class AuthService {
     }
 
     public Optional<Session> authenticateUser(String email, String password, String fcmToken) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
+        Optional<User> userOpt = userRepository.findByEmailAndDeletedAtIsNull(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
             if (user.getVerifiedAt() != null) {
@@ -50,19 +50,12 @@ public class AuthService {
     }
 
     public boolean isEmailAvailable(String email) {
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        // return userOpt.isEmpty();
-
-        // Negate the result to indicate availability (for debugging purposes)
-        if (userOpt.isEmpty())
-            return true;
-
-        userRepository.delete(userOpt.get());
-        return true;
+        Optional<User> userOpt = userRepository.findByEmailAndDeletedAtIsNull(email);
+        return userOpt.isEmpty();
     }
 
     public Optional<User> findUserByEmail(String email) {
-        return userRepository.findByEmail(email);
+        return userRepository.findByEmailAndDeletedAtIsNull(email);
     }
 
     public Optional<User> findUserById(String userId) {

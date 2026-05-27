@@ -32,14 +32,14 @@ public class OTPService {
     private int OTP_CLEAR = 30;
 
     @Transactional
-    public void deleteOTP(OTP otp) {
+    public void deleteOTP(OTP otp, Boolean bypassDeleteUser) {
         User user = otp.getUserId();
 
         user.setOtp(null);
         otp.setUserId(null);
 
         otpRepository.delete(otp);
-        if (user.getVerifiedAt() == null)
+        if (user.getVerifiedAt() == null && !bypassDeleteUser)
             // cleanUpService.cleanUser(user);
                 userRepository.delete(user);
     }
@@ -87,7 +87,7 @@ public class OTPService {
         Optional<OTP> existingOtp = otpRepository.findByUserId(user);
         if (existingOtp.isPresent()) {
             OTP otp = existingOtp.get();
-            deleteOTP(otp);
+            deleteOTP(otp, false);
         }
     }
 
@@ -96,7 +96,7 @@ public class OTPService {
         List<OTP> otps = otpRepository.findAll();
         for (OTP otp : otps) {
             if (otp.getValidUntil().plusMinutes(OTP_CLEAR).isBefore(LocalDateTime.now())) {
-                deleteOTP(otp);
+                deleteOTP(otp, false);
             }
         }
     }
@@ -108,7 +108,7 @@ public class OTPService {
             if (otp.getUserId().getId().equals(userId) && otp.getCode().equals(code)
                     && otp.getValidUntil().isAfter(LocalDateTime.now())) {
                 User tempUser = otp.getUserId();
-                deleteOTP(otp);
+                deleteOTP(otp, true);
                 return Optional.of(tempUser);
             }
         }

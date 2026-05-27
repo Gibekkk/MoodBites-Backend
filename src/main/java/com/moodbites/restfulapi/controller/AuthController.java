@@ -117,7 +117,7 @@ public class AuthController {
             if (userOpt.isPresent()) {
                 User user = userOpt.get();
                 Session session = authService.verifyUser(user);
-                // formService.createUserPreferences(user);
+                formService.createUserPreferences(user);
                 data = Map.of(
                         "userId", session.getUserId().getId(),
                         "token", session.getToken());

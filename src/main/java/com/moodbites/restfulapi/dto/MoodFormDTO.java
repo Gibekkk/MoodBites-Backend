@@ -26,7 +26,7 @@ public class MoodFormDTO {
             throw new IllegalArgumentException("Moods Cannot Be NULL or Empty");
 
         for (String mood : VALID_MOODS) {
-            if (!this.moods.containsKey(mood))
+            if (!this.moods.containsKey(mood.toLowerCase()))
                 throw new IllegalArgumentException("Missing Mood: " + mood);
         }
 
