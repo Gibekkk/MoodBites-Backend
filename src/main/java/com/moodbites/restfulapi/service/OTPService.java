@@ -40,7 +40,7 @@ public class OTPService {
 
         otpRepository.delete(otp);
         if (user.getVerifiedAt() == null)
-            // cleanUpService.cleanLogin(user);
+            // cleanUpService.cleanUser(user);
                 userRepository.delete(user);
     }
 
@@ -74,7 +74,7 @@ public class OTPService {
         return Optional.empty();
     }
 
-    // public Boolean deleteOTP(Login user) {
+    // public Boolean deleteOTP(User user) {
     //     Optional<OTP> existingOtp = otpRepository.findByUserId(user);
     //     if (existingOtp.isPresent()) {
     //         clearExistingOTP(user);
@@ -107,9 +107,9 @@ public class OTPService {
         for (OTP otp : otps) {
             if (otp.getUserId().getId().equals(userId) && otp.getCode().equals(code)
                     && otp.getValidUntil().isAfter(LocalDateTime.now())) {
-                User tempLogin = otp.getUserId();
+                User tempUser = otp.getUserId();
                 deleteOTP(otp);
-                return Optional.of(tempLogin);
+                return Optional.of(tempUser);
             }
         }
         return Optional.empty();
