@@ -1,15 +1,12 @@
 package com.moodbites.restfulapi.service;
 
-import com.moodbites.restfulapi.controller.FormController;
 import com.moodbites.restfulapi.repository.UserSampleFoodPreferenceRepository;
 
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,8 +27,6 @@ import com.moodbites.restfulapi.repository.UserFlavorPreferenceRepository;
 @Service
 public class FormService {
 
-    private final FormController formController;
-
     @Autowired
     private UserSampleFoodPreferenceRepository userSampleFoodPreferenceRepository;
 
@@ -40,13 +35,6 @@ public class FormService {
 
     @Autowired
     private UserFlavorPreferenceRepository userFlavorPreferenceRepository;
-
-    @Autowired
-    private AuthService authService;
-
-    FormService(FormController formController) {
-        this.formController = formController;
-    }
 
     public void createUserPreferences(User user) {
         createUserMoodPreferences(user);

@@ -1,6 +1,5 @@
 package com.moodbites.restfulapi.model;
 
-import java.time.LocalDateTime;
 import java.util.Set;
 
 import com.moodbites.restfulapi.model.enums.Mood;
