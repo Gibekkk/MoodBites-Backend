@@ -5,8 +5,11 @@ import com.moodbites.restfulapi.repository.UserSampleFoodPreferenceRepository;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -117,5 +120,34 @@ public class FormService {
         for (UserSampleFoodPreference userSampleFoodPreference : userPreference.getUserSampleFoodPreferences()) {
             userSampleFoodPreferenceRepository.delete(userSampleFoodPreference);
         }
+    }
+
+    public Map<String, Object> getPreferenceByMoodAndUser(Mood mood, User user) {
+        Optional<UserPreference> userPreferenceOpt = userPreferenceRepository.findByUserIdAndMood(user, mood);
+        if(userPreferenceOpt.isEmpty()) {
+            throw new IllegalArgumentException("User preference not found");
+        }
+
+        UserPreference userPreference = userPreferenceOpt.get();
+
+        Map<String, Integer> desire = new HashMap<>();
+        Map<String, Integer> intensity = new HashMap<>();
+        for(UserFlavorPreference userFlavorPreference : userPreference.getUserFlavorPreferences()) {
+            desire.put(userFlavorPreference.getFlavor().toString(), userFlavorPreference.getPreferenceScale());
+            intensity.put(userFlavorPreference.getFlavor().toString(), userFlavorPreference.getIntensityScale());
+        }
+
+        ArrayList<String> categories = new ArrayList<>();
+        for(UserSampleFoodPreference userSampleFoodPreference : userPreference.getUserSampleFoodPreferences()) {
+            categories.add(userSampleFoodPreference.getSampleFood().toString());
+        }
+
+        Map<String, Object> response = Map.of(
+            "mood", userPreference.getMood().toString(),
+            "desire", desire,
+            "intensity", intensity,
+            "categories", categories
+        );
+        return response;
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -65,4 +66,34 @@ public class FormController {
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(data);
     }
+
+    // @GetMapping
+    // public ResponseEntity<Object> getPreferences(HttpServletRequest request) {
+    //     String sessionToken = request.getHeader("Token");
+    //     HTTPCode httpCode = HTTPCode.OK;
+    //     try {
+    //         Optional<Session> sessionOpt = authService.findSessionBySessionToken(sessionToken);
+    //         if (sessionOpt.isPresent()) {
+    //             Session session = sessionOpt.get();
+    //             // formService.updateUserPreferences(session.getUserId(), moodFormDTO);
+    //             data = Map.of(
+    //                     "userId", session.getUserId().getId(),
+    //                     "message", "Preferences updated successfully");
+    //         } else {
+    //             httpCode = HTTPCode.FORBIDDEN;
+    //             data = new ErrorMessage(httpCode, "Authentication Failed");
+    //         }
+    //     } catch (IllegalArgumentException e) {
+    //         httpCode = HTTPCode.BAD_REQUEST;
+    //         data = new ErrorMessage(httpCode, e.getMessage());
+    //     } catch (Exception e) {
+    //         httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
+    //         data = new ErrorMessage(httpCode, e.getMessage());
+    //     }
+
+    //     return ResponseEntity
+    //             .status(httpCode.getStatus())
+    //             .contentType(MediaType.APPLICATION_JSON)
+    //             .body(data);
+    // }
 }
