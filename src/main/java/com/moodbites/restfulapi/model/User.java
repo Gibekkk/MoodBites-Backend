@@ -51,6 +51,9 @@ public class User {
     @Column(name = "verified_at", nullable = true)
     private LocalDateTime verifiedAt;
 
+    @Column(name = "edited_preference_at", nullable = true)
+    private LocalDateTime editedPreferenceAt;
+
     @OneToOne(mappedBy = "userId", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = true)
     private OTP otp;
 

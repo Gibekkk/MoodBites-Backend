@@ -3,6 +3,7 @@ package com.moodbites.restfulapi.controller;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import com.moodbites.restfulapi.dto.LoginDTO;
+import com.moodbites.restfulapi.dto.ProfileDTO;
 import com.moodbites.restfulapi.dto.RegisterDTO;
 import com.moodbites.restfulapi.dto.VerifyOTPDTO;
 import com.moodbites.restfulapi.service.EmailService;
@@ -174,6 +176,99 @@ public class AuthController {
                 .body(data);
     }
 
+    @GetMapping("/profile")
+    public ResponseEntity<Object> getProfile(HttpServletRequest request) {
+        String sessionToken = request.getHeader("Token");
+        HTTPCode httpCode = HTTPCode.OK;
+        try {
+            Optional<Session> sessionOpt = authService.findSessionBySessionToken(sessionToken);
+            if (sessionOpt.isPresent()) {
+                Session session = sessionOpt.get();
+                data = Map.of(
+                        "id", session.getUserId().getId(),
+                        "email", session.getUserId().getEmail(),
+                        "joinedYear", session.getUserId().getCreatedAt().getYear(),
+                        "name", session.getUserId().getName());
+            } else {
+                httpCode = HTTPCode.FORBIDDEN;
+                data = new ErrorMessage(httpCode, "Authentication Failed");
+            }
+        } catch (IllegalArgumentException e) {
+            httpCode = HTTPCode.BAD_REQUEST;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        } catch (Exception e) {
+            httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        }
+
+        return ResponseEntity
+                .status(httpCode.getStatus())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(data);
+    }
+
+    @PatchMapping("/profile")
+    public ResponseEntity<Object> editProfile(HttpServletRequest request, @RequestBody ProfileDTO profileDTO) {
+        String sessionToken = request.getHeader("Token");
+        HTTPCode httpCode = HTTPCode.OK;
+        try {
+            profileDTO.checkDTO();
+            Optional<Session> sessionOpt = authService.findSessionBySessionToken(sessionToken);
+            if (sessionOpt.isPresent()) {
+                Session session = sessionOpt.get();
+                User user = authService.editUserProfile(session.getUserId(), profileDTO);
+                data = Map.of(
+                        "id", user.getId(),
+                        "email", user.getEmail(),
+                        "joinedYear", user.getCreatedAt().getYear(),
+                        "name", user.getName());
+            } else {
+                httpCode = HTTPCode.FORBIDDEN;
+                data = new ErrorMessage(httpCode, "Authentication Failed");
+            }
+        } catch (IllegalArgumentException e) {
+            httpCode = HTTPCode.BAD_REQUEST;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        } catch (Exception e) {
+            httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        }
+
+        return ResponseEntity
+                .status(httpCode.getStatus())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(data);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Object> logout(HttpServletRequest request) {
+        String sessionToken = request.getHeader("Token");
+        HTTPCode httpCode = HTTPCode.OK;
+        try {
+            Optional<Session> sessionOpt = authService.findSessionBySessionToken(sessionToken);
+            if (sessionOpt.isPresent()) {
+                Session session = sessionOpt.get();
+                authService.deleteSession(session);
+                data = Map.of(
+                        "message", "Logout Successful");
+            } else {
+                httpCode = HTTPCode.FORBIDDEN;
+                data = new ErrorMessage(httpCode, "Authentication Failed");
+            }
+        } catch (IllegalArgumentException e) {
+            httpCode = HTTPCode.BAD_REQUEST;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        } catch (Exception e) {
+            httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
+            data = new ErrorMessage(httpCode, e.getMessage());
+        }
+
+        return ResponseEntity
+                .status(httpCode.getStatus())
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(data);
+    }
+
     @GetMapping("/check")
     public ResponseEntity<Object> checkToken(HttpServletRequest request) {
         String sessionToken = request.getHeader("Token");
@@ -184,7 +279,8 @@ public class AuthController {
                 Session session = sessionOpt.get();
                 data = Map.of(
                         "id", session.getUserId().getId(),
-                        "nama", session.getUserId().getName());
+                        "name", session.getUserId().getName(),
+                        "isFinishedForm", session.getUserId().getEditedPreferenceAt() != null);
             } else {
                 httpCode = HTTPCode.FORBIDDEN;
                 data = new ErrorMessage(httpCode, "Authentication Failed");

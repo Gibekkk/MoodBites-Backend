@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.moodbites.restfulapi.model.User;
+import com.moodbites.restfulapi.dto.ProfileDTO;
 import com.moodbites.restfulapi.model.Session;
 import com.moodbites.restfulapi.repository.SessionRepository;
 import com.moodbites.restfulapi.repository.UserRepository;
@@ -115,5 +116,11 @@ public class AuthService {
         for (Session session : expiredSessions) {
             deleteSession(session);
         }
+    }
+
+    public User editUserProfile(User user, ProfileDTO profileDTO) {
+        user.setName(profileDTO.getName());
+        user.setEditedAt(LocalDateTime.now());
+        return userRepository.save(user);
     }
 }

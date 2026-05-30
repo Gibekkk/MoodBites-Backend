@@ -25,6 +25,7 @@ import com.moodbites.restfulapi.model.enums.Flavor;
 import com.moodbites.restfulapi.model.enums.Mood;
 import com.moodbites.restfulapi.model.enums.SampleFood;
 import com.moodbites.restfulapi.repository.UserPreferenceRepository;
+import com.moodbites.restfulapi.repository.UserRepository;
 import com.moodbites.restfulapi.repository.UserFlavorPreferenceRepository;
 
 @Service
@@ -38,6 +39,9 @@ public class FormService {
 
     @Autowired
     private UserFlavorPreferenceRepository userFlavorPreferenceRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     public void createUserPreferences(User user) {
         createUserMoodPreferences(user);
@@ -113,6 +117,8 @@ public class FormService {
                 }
             }
         }
+        user.setEditedPreferenceAt(LocalDateTime.now());
+        userRepository.save(user);
     }
 
     @Transactional
