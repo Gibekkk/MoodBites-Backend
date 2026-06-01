@@ -149,17 +149,11 @@ public class FormService {
         }
 
         Map<String, Object> response = Map.of(
-<<<<<<< Updated upstream
-            "desire", desire,
-            "intensity", intensity,
-            "categories", categories
-=======
             "preferences", Map.of(
                 "desire", desire,
                 "intensity", intensity,
                 "categories", categories
             )
->>>>>>> Stashed changes
         );
         return response;
     }
