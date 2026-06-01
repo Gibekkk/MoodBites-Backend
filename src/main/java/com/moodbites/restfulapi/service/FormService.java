@@ -149,7 +149,6 @@ public class FormService {
         }
 
         Map<String, Object> response = Map.of(
-            "mood", userPreference.getMood().toString(),
             "desire", desire,
             "intensity", intensity,
             "categories", categories
