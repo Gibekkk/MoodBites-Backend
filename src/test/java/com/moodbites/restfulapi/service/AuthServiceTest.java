@@ -1,320 +1,250 @@
-// package com.moodbites.restfulapi.service;
+package com.moodbites.restfulapi.service;
+
+import com.moodbites.restfulapi.dto.ProfileDTO;
+import com.moodbites.restfulapi.model.Session;
+import com.moodbites.restfulapi.model.User;
+import com.moodbites.restfulapi.repository.SessionRepository;
+import com.moodbites.restfulapi.repository.UserRepository;
+import com.moodbites.restfulapi.util.PasswordHasherMatcher;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+public class AuthServiceTest {
+
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private SessionRepository sessionRepository;
+
+    @Mock
+    private PasswordHasherMatcher passwordMaker;
+
+    @InjectMocks
+    private AuthService authService;
+
+    private User testUser;
+    private Session testSession;
+    private final String email = "test@moodbites.com";
+    private final String rawPassword = "password123";
+    private final String hashedPassword = "hashedPassword123";
+    private final String fcmToken = "fcm-token-test";
+
+    @BeforeEach
+    void setUp() {
+        testUser = new User();
+        testUser.setId(UUID.randomUUID().toString());
+        testUser.setEmail(email);
+        testUser.setPassword(hashedPassword);
+        testUser.setName("Test User");
+        testUser.setCreatedAt(LocalDateTime.now());
+        testUser.setSessions(new HashSet<>());
+
+        testSession = new Session();
+        testSession.setId(UUID.randomUUID().toString());
+        testSession.setUserId(testUser);
+        testSession.setToken(UUID.randomUUID().toString());
+        testSession.setFcmToken(fcmToken);
+        testSession.setCreatedAt(LocalDateTime.now());
+        testSession.setLastSeenAt(LocalDateTime.now());
+    }
+
+    // --- authenticateUser ---
+
+    @Test
+    void authenticateUser_ValidCredentials_ReturnsSession() {
+        testUser.setVerifiedAt(LocalDateTime.now());
+        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.of(testUser));
+        when(passwordMaker.matchPassword(rawPassword, hashedPassword)).thenReturn(true);
+        when(sessionRepository.save(any(Session.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Optional<Session> result = authService.authenticateUser(email, rawPassword, fcmToken);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getUserId()).isEqualTo(testUser);
+        assertThat(result.get().getFcmToken()).isEqualTo(fcmToken);
+        assertThat(result.get().getToken()).isNotNull();
+        verify(sessionRepository, times(1)).save(any(Session.class));
+    }
+
+    @Test
+    void authenticateUser_WrongPassword_ReturnsEmpty() {
+        testUser.setVerifiedAt(LocalDateTime.now());
+        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.of(testUser));
+        when(passwordMaker.matchPassword(rawPassword, hashedPassword)).thenReturn(false);
+
+        Optional<Session> result = authService.authenticateUser(email, rawPassword, fcmToken);
+
+        assertThat(result).isEmpty();
+        verify(sessionRepository, never()).save(any(Session.class));
+    }
+
+    @Test
+    void authenticateUser_NotVerified_ReturnsEmpty() {
+        testUser.setVerifiedAt(null);
+        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.of(testUser));
 
-// import com.moodbites.restfulapi.model.Session;
-// import com.moodbites.restfulapi.model.User;
-// import com.moodbites.restfulapi.repository.SessionRepository;
-// import com.moodbites.restfulapi.repository.UserRepository;
-// import com.moodbites.restfulapi.util.PasswordHasherMatcher;
-// import org.junit.jupiter.api.Test;
-// import org.junit.jupiter.api.extension.ExtendWith;
-// import org.mockito.InjectMocks;
-// import org.mockito.Mock;
-// import org.mockito.junit.jupiter.MockitoExtension;
+        Optional<Session> result = authService.authenticateUser(email, rawPassword, fcmToken);
 
-// import java.time.LocalDateTime;
-// import java.util.Optional;
-// import java.util.Set;
+        assertThat(result).isEmpty();
+        verify(passwordMaker, never()).matchPassword(anyString(), anyString());
+        verify(sessionRepository, never()).save(any(Session.class));
+    }
 
-// import static org.assertj.core.api.Assertions.assertThat;
-// import static org.assertj.core.api.Assertions.assertThatThrownBy;
-// import static org.mockito.ArgumentMatchers.any;
-// import static org.mockito.Mockito.*;
+    @Test
+    void authenticateUser_EmailNotFound_ReturnsEmpty() {
+        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.empty());
+
+        Optional<Session> result = authService.authenticateUser(email, rawPassword, fcmToken);
 
-// @ExtendWith(MockitoExtension.class)
-// class AuthServiceTest {
+        assertThat(result).isEmpty();
+    }
 
-//     @Mock
-//     private UserRepository userRepository;
+    // --- isEmailAvailable ---
 
-//     @Mock
-//     private SessionRepository sessionRepository;
+    @Test
+    void isEmailAvailable_EmailNotExists_ReturnsTrue() {
+        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.empty());
+        boolean result = authService.isEmailAvailable(email);
+        assertThat(result).isTrue();
+    }
 
-//     @Mock
-//     private PasswordHasherMatcher passwordMaker;
-
-//     @InjectMocks
-//     private AuthService authService;
-
-//     // ───────────────────────────────────────────
-//     // authenticateUser
-//     // ───────────────────────────────────────────
-
-//     @Test
-//     void authenticateUser_emailAndPasswordCorrect_returnSession() {
-//         User user = buildVerifiedUser();
-//         Session session = new Session();
-
-//         when(userRepository.findByEmail("john@mail.com")).thenReturn(Optional.of(user));
-//         when(passwordMaker.matchPassword("pass123", "hashed")).thenReturn(true);
-//         when(sessionRepository.save(any())).thenReturn(session);
-
-//         Optional<Session> result = authService.authenticateUser("john@mail.com", "pass123", "fcm-token");
-
-//         assertThat(result).isPresent();
-//     }
-
-//     @Test
-//     void authenticateUser_wrongPassword_returnEmpty() {
-//         User user = buildVerifiedUser();
-
-//         when(userRepository.findByEmail("john@mail.com")).thenReturn(Optional.of(user));
-//         when(passwordMaker.matchPassword("wrong", "hashed")).thenReturn(false);
-
-//         Optional<Session> result = authService.authenticateUser("john@mail.com", "wrong", "fcm-token");
-
-//         assertThat(result).isEmpty();
-//     }
-
-//     @Test
-//     void authenticateUser_notVerified_returnEmpty() {
-//         User user = new User();
-//         user.setEmail("john@mail.com");
-//         user.setPassword("hashed");
-//         user.setVerifiedAt(null);
-
-//         when(userRepository.findByEmail("john@mail.com")).thenReturn(Optional.of(user));
-
-//         Optional<Session> result = authService.authenticateUser("john@mail.com", "pass123", "fcm-token");
-
-//         assertThat(result).isEmpty();
-//         verify(passwordMaker, never()).matchPassword(any(), any());
-//     }
-
-//     @Test
-//     void authenticateUser_emailNotFound_returnEmpty() {
-//         when(userRepository.findByEmail("ghost@mail.com")).thenReturn(Optional.empty());
-
-//         Optional<Session> result = authService.authenticateUser("ghost@mail.com", "pass123", "fcm-token");
-
-//         assertThat(result).isEmpty();
-//         verify(passwordMaker, never()).matchPassword(any(), any());
-//     }
-
-//     // ───────────────────────────────────────────
-//     // isEmailAvailable
-//     // ───────────────────────────────────────────
-
-//     @Test
-//     void isEmailAvailable_emailNotExist_returnTrue() {
-//         when(userRepository.findByEmail("new@mail.com")).thenReturn(Optional.empty());
-
-//         boolean result = authService.isEmailAvailable("new@mail.com");
-
-//         assertThat(result).isTrue();
-//         verify(userRepository, never()).delete(any());
-//     }
-
-//     @Test
-//     void isEmailAvailable_emailExist_deleteAndReturnTrue() {
-//         User existing = buildVerifiedUser();
-//         when(userRepository.findByEmail("john@mail.com")).thenReturn(Optional.of(existing));
-
-//         boolean result = authService.isEmailAvailable("john@mail.com");
-
-//         // NOTE: ini bug di service — email ada malah didelete
-//         // test ini dokumentasi behavior saat ini, bukan behavior ideal
-//         assertThat(result).isTrue();
-//         verify(userRepository).delete(existing);
-//     }
-
-//     // ───────────────────────────────────────────
-//     // registerToko
-//     // ───────────────────────────────────────────
-
-//     @Test
-//     void registerToko_validData_returnUser() {
-//         User savedUser = new User();
-//         savedUser.setEmail("john@mail.com");
-//         savedUser.setName("John");
-
-//         when(passwordMaker.hashPassword("pass123")).thenReturn("hashed");
-//         when(userRepository.save(any())).thenReturn(savedUser);
-//         when(sessionRepository.save(any())).thenReturn(new Session());
-
-//         User result = authService.registerUser("john@mail.com", "pass123", "fcm-token", "John");
-
-//         assertThat(result.getEmail()).isEqualTo("john@mail.com");
-//         assertThat(result.getName()).isEqualTo("John");
-//         verify(userRepository).save(any(User.class));
-//         verify(sessionRepository).save(any(Session.class));
-//     }
-
-//     @Test
-//     void registerToko_passwordHashed_notStoredAsPlaintext() {
-//         User savedUser = new User();
-//         savedUser.setPassword("hashed");
-
-//         when(passwordMaker.hashPassword("pass123")).thenReturn("hashed");
-//         when(userRepository.save(any())).thenReturn(savedUser);
-//         when(sessionRepository.save(any())).thenReturn(new Session());
-
-//         authService.registerUser("john@mail.com", "pass123", "fcm-token", "John");
-
-//         verify(passwordMaker).hashPassword("pass123");
-//         verify(userRepository).save(argThat(user ->
-//             !"pass123".equals(user.getPassword())
-//         ));
-//     }
-
-//     @Test
-//     void registerToko_sessionCreated_afterUserSaved() {
-//         User savedUser = new User();
-//         savedUser.setEmail("john@mail.com");
-
-//         when(passwordMaker.hashPassword(any())).thenReturn("hashed");
-//         when(userRepository.save(any())).thenReturn(savedUser);
-//         when(sessionRepository.save(any())).thenReturn(new Session());
-
-//         authService.registerUser("john@mail.com", "pass123", "fcm-token", "John");
-
-//         // pastikan urutan: save user DULU, baru save session
-//         var order = inOrder(userRepository, sessionRepository);
-//         order.verify(userRepository).save(any());
-//         order.verify(sessionRepository).save(any());
-//     }
-
-//     // ───────────────────────────────────────────
-//     // verifyUser
-//     // ───────────────────────────────────────────
-
-//     @Test
-//     void verifyUser_userHasSession_returnSession() {
-//         Session session = new Session();
-//         User user = buildVerifiedUser();
-//         user.setSessions(Set.of(session));
-
-//         when(userRepository.save(any())).thenReturn(user);
-
-//         Session result = authService.verifyUser(user);
-
-//         assertThat(result).isNotNull();
-//         verify(userRepository).save(user);
-//     }
-
-//     @Test
-//     void verifyUser_userHasNoSession_returnNull() {
-//         User user = new User();
-//         user.setSessions(Set.of());
-
-//         when(userRepository.save(any())).thenReturn(user);
-
-//         Session result = authService.verifyUser(user);
-
-//         assertThat(result).isNull();
-//     }
-
-//     @Test
-//     void verifyUser_setsVerifiedAt_notNull() {
-//         User user = new User();
-//         user.setSessions(Set.of());
-
-//         when(userRepository.save(any())).thenReturn(user);
-
-//         authService.verifyUser(user);
-
-//         verify(userRepository).save(argThat(u ->
-//             u.getVerifiedAt() != null
-//         ));
-//     }
-
-//     // ───────────────────────────────────────────
-//     // findSessionBySessionToken
-//     // ───────────────────────────────────────────
-
-//     @Test
-//     void findSessionBySessionToken_validToken_returnSession() {
-//         Session session = new Session();
-//         when(sessionRepository.findById("valid-token")).thenReturn(Optional.of(session));
-
-//         Optional<Session> result = authService.findSessionBySessionToken("valid-token");
-
-//         assertThat(result).isPresent();
-//     }
-
-//     @Test
-//     void findSessionBySessionToken_invalidToken_returnEmpty() {
-//         when(sessionRepository.findById("invalid-token")).thenReturn(Optional.empty());
-
-//         Optional<Session> result = authService.findSessionBySessionToken("invalid-token");
-
-//         assertThat(result).isEmpty();
-//     }
-
-//     // ───────────────────────────────────────────
-//     // deleteSession
-//     // ───────────────────────────────────────────
-
-//     @Test
-//     void deleteSession_validSession_deletedFromRepository() {
-//         Session session = new Session();
-
-//         authService.deleteSession(session);
-
-//         verify(sessionRepository).delete(session);
-//     }
-
-//     @Test
-//     void deleteSession_calledOnce_notCalledTwice() {
-//         Session session = new Session();
-
-//         authService.deleteSession(session);
-
-//         verify(sessionRepository, times(1)).delete(session);
-//     }
-
-//     // ───────────────────────────────────────────
-//     // findLoginByEmail & findLoginById
-//     // ───────────────────────────────────────────
-
-//     @Test
-//     void findLoginByEmail_emailExist_returnUser() {
-//         User user = buildVerifiedUser();
-//         when(userRepository.findByEmail("john@mail.com")).thenReturn(Optional.of(user));
-
-//         Optional<User> result = authService.findLoginByEmail("john@mail.com");
-
-//         assertThat(result).isPresent();
-//         assertThat(result.get().getEmail()).isEqualTo("john@mail.com");
-//     }
-
-//     @Test
-//     void findLoginByEmail_emailNotExist_returnEmpty() {
-//         when(userRepository.findByEmail("ghost@mail.com")).thenReturn(Optional.empty());
-
-//         Optional<User> result = authService.findLoginByEmail("ghost@mail.com");
-
-//         assertThat(result).isEmpty();
-//     }
-
-//     @Test
-//     void findLoginById_idExist_returnUser() {
-//         User user = buildVerifiedUser();
-//         when(userRepository.findById("user-123")).thenReturn(Optional.of(user));
-
-//         Optional<User> result = authService.findLoginById("user-123");
-
-//         assertThat(result).isPresent();
-//     }
-
-//     @Test
-//     void findLoginById_idNotExist_returnEmpty() {
-//         when(userRepository.findById("invalid-id")).thenReturn(Optional.empty());
-
-//         Optional<User> result = authService.findLoginById("invalid-id");
-
-//         assertThat(result).isEmpty();
-//     }
-
-//     // ───────────────────────────────────────────
-//     // Helper
-//     // ───────────────────────────────────────────
-
-//     private User buildVerifiedUser() {
-//         User user = new User();
-//         user.setEmail("john@mail.com");
-//         user.setPassword("hashed");
-//         user.setVerifiedAt(LocalDateTime.now());
-//         user.setSessions(Set.of());
-//         return user;
-//     }
-// }
+    @Test
+    void isEmailAvailable_EmailExists_ReturnsFalse() {
+        when(userRepository.findByEmailAndDeletedAtIsNull(email)).thenReturn(Optional.of(testUser));
+        boolean result = authService.isEmailAvailable(email);
+        assertThat(result).isFalse();
+    }
+
+    // --- registerUser ---
+
+    @Test
+    void registerUser_ValidData_SavesUserAndSession() {
+        String name = "New User";
+        when(passwordMaker.hashPassword(rawPassword)).thenReturn(hashedPassword);
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+        when(sessionRepository.save(any(Session.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = authService.registerUser(email, rawPassword, fcmToken, name);
+
+        assertThat(result).isNotNull();
+        assertThat(result.getEmail()).isEqualTo(email);
+        assertThat(result.getPassword()).isEqualTo(hashedPassword);
+        assertThat(result.getName()).isEqualTo(name);
+        assertThat(result.getCreatedAt()).isNotNull();
+
+        verify(userRepository, times(1)).save(any(User.class));
+        verify(sessionRepository, times(1)).save(any(Session.class));
+    }
+
+    // --- verifyUser ---
+
+    @Test
+    void verifyUser_SetsVerifiedAtAndReturnsSession() {
+        testUser.getSessions().add(testSession);
+        when(userRepository.save(any(User.class))).thenReturn(testUser);
+
+        Session result = authService.verifyUser(testUser);
+
+        assertThat(testUser.getVerifiedAt()).isNotNull();
+        assertThat(result).isEqualTo(testSession);
+        verify(userRepository, times(1)).save(testUser);
+    }
+
+    // --- findSessionBySessionToken ---
+
+    @Test
+    void findSessionBySessionToken_ValidToken_UpdatesLastSeenAndReturnsSession() {
+        String token = testSession.getToken();
+        LocalDateTime oldLastSeen = testSession.getLastSeenAt();
+        when(sessionRepository.findByToken(token)).thenReturn(Optional.of(testSession));
+        when(sessionRepository.save(any(Session.class))).thenReturn(testSession);
+
+        Optional<Session> result = authService.findSessionBySessionToken(token);
+
+        assertThat(result).isPresent();
+        assertThat(result.get().getLastSeenAt()).isAfterOrEqualTo(oldLastSeen);
+        verify(sessionRepository, times(1)).save(testSession);
+    }
+
+    @Test
+    void findSessionBySessionToken_InvalidToken_ReturnsEmpty() {
+        String invalidToken = "invalid-token";
+        when(sessionRepository.findByToken(invalidToken)).thenReturn(Optional.empty());
+
+        Optional<Session> result = authService.findSessionBySessionToken(invalidToken);
+
+        assertThat(result).isEmpty();
+        verify(sessionRepository, never()).save(any(Session.class));
+    }
+
+    // --- deleteSession ---
+
+    @Test
+    void deleteSession_CallsRepositoryDelete() {
+        authService.deleteSession(testSession);
+        verify(sessionRepository, times(1)).delete(testSession);
+    }
+
+    // --- editUserProfile ---
+
+    @Test
+    void editUserProfile_UpdatesNameAndEditedAt() {
+        ProfileDTO dto = new ProfileDTO();
+        dto.setName("Updated Name");
+        LocalDateTime oldEditedAt = testUser.getEditedAt();
+        
+        when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        User result = authService.editUserProfile(testUser, dto);
+
+        assertThat(result.getName()).isEqualTo("Updated Name");
+        assertThat(result.getEditedAt()).isNotNull();
+        if (oldEditedAt != null) {
+            assertThat(result.getEditedAt()).isAfterOrEqualTo(oldEditedAt);
+        }
+        verify(userRepository, times(1)).save(testUser);
+    }
+
+    // --- deleteExpiredSessions ---
+
+    @Test
+    void deleteExpiredSessions_DeletesOnlyExpired() {
+        Session expiredSession1 = new Session();
+        Session expiredSession2 = new Session();
+        ArrayList<Session> expiredList = new ArrayList<>();
+        expiredList.add(expiredSession1);
+        expiredList.add(expiredSession2);
+
+        when(sessionRepository.findByLastSeenAtBefore(any(LocalDateTime.class))).thenReturn(expiredList);
+
+        authService.deleteExpiredSessions();
+
+        ArgumentCaptor<LocalDateTime> timeCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
+        verify(sessionRepository, times(1)).findByLastSeenAtBefore(timeCaptor.capture());
+        
+        // Assert the threshold is around 60 minutes ago
+        LocalDateTime capturedTime = timeCaptor.getValue();
+        assertThat(capturedTime).isBefore(LocalDateTime.now().minusMinutes(59));
+
+        verify(sessionRepository, times(1)).delete(expiredSession1);
+        verify(sessionRepository, times(1)).delete(expiredSession2);
+    }
+}
