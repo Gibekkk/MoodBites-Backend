@@ -82,7 +82,8 @@ public class ExternalController {
                 Optional<Session> sessionOpt = authService.findSessionBySessionToken(sessionToken);
                 if (sessionOpt.isPresent()) {
                     Session session = sessionOpt.get();
-                    data = externalService.getRecommendations(formService.getPreferenceByMoodAndUser(moodEnum, session.getUserId()));
+                    data = externalService.getRecommendations(session.getUserId().getId(), mood);
+                    // data = externalService.getRecommendations(formService.getPreferenceByMoodAndUser(moodEnum, session.getUserId()));
                 } else {
                     httpCode = HTTPCode.FORBIDDEN;
                     data = new ErrorMessage(httpCode, "Authentication Failed");
