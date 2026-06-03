@@ -62,6 +62,7 @@ public class AuthController {
                 Session session = sessionOpt.get();
                 data = Map.of(
                         "userId", session.getUserId().getId(),
+                        "isFinishedForm", session.getUserId().getEditedPreferenceAt() != null,
                         "token", session.getToken());
             } else {
                 httpCode = HTTPCode.UNAUTHORIZED;

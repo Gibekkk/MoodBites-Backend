@@ -18,7 +18,7 @@ import com.moodbites.restfulapi.util.HTTPCode;
 import jakarta.servlet.http.HttpServletRequest;
 
 import com.moodbites.restfulapi.service.AuthService;
-import com.moodbites.restfulapi.service.ExternalService;
+// import com.moodbites.restfulapi.service.ExternalService;
 import com.moodbites.restfulapi.model.Session;
 import com.moodbites.restfulapi.model.User;
 import com.moodbites.restfulapi.model.enums.Mood;
@@ -34,8 +34,8 @@ public class ExternalController {
     @Autowired
     private FormService formService;
 
-    @Autowired
-    private ExternalService externalService;
+    // @Autowired
+    // private ExternalService externalService;
 
     private Object data = "";
 
@@ -72,37 +72,37 @@ public class ExternalController {
                 .body(data);
     }
 
-    @GetMapping("/recommendations/{mood}")
-    public ResponseEntity<Object> getRecommendations(HttpServletRequest request, @PathVariable String mood) {
-        String sessionToken = request.getHeader("Token");
-        HTTPCode httpCode = HTTPCode.OK;
-        try {
-            if (Mood.checkExist(mood)) {
-                Mood moodEnum = Mood.fromString(mood);
-                Optional<Session> sessionOpt = authService.findSessionBySessionToken(sessionToken);
-                if (sessionOpt.isPresent()) {
-                    Session session = sessionOpt.get();
-                    data = externalService.getRecommendations(session.getUserId().getId(), mood);
-                    // data = externalService.getRecommendations(formService.getPreferenceByMoodAndUser(moodEnum, session.getUserId()));
-                } else {
-                    httpCode = HTTPCode.FORBIDDEN;
-                    data = new ErrorMessage(httpCode, "Authentication Failed");
-                }
-            } else {
-                httpCode = HTTPCode.NOT_FOUND;
-                data = new ErrorMessage(httpCode, "Mood not found");
-            }
-        } catch (IllegalArgumentException e) {
-            httpCode = HTTPCode.BAD_REQUEST;
-            data = new ErrorMessage(httpCode, e.getMessage());
-        } catch (Exception e) {
-            httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
-            data = new ErrorMessage(httpCode, e.getMessage());
-        }
+    // @GetMapping("/recommendations/{mood}")
+    // public ResponseEntity<Object> getRecommendations(HttpServletRequest request, @PathVariable String mood) {
+    //     String sessionToken = request.getHeader("Token");
+    //     HTTPCode httpCode = HTTPCode.OK;
+    //     try {
+    //         if (Mood.checkExist(mood)) {
+    //             Mood moodEnum = Mood.fromString(mood);
+    //             Optional<Session> sessionOpt = authService.findSessionBySessionToken(sessionToken);
+    //             if (sessionOpt.isPresent()) {
+    //                 Session session = sessionOpt.get();
+    //                 data = externalService.getRecommendations(session.getUserId().getId(), mood);
+    //                 // data = externalService.getRecommendations(formService.getPreferenceByMoodAndUser(moodEnum, session.getUserId()));
+    //             } else {
+    //                 httpCode = HTTPCode.FORBIDDEN;
+    //                 data = new ErrorMessage(httpCode, "Authentication Failed");
+    //             }
+    //         } else {
+    //             httpCode = HTTPCode.NOT_FOUND;
+    //             data = new ErrorMessage(httpCode, "Mood not found");
+    //         }
+    //     } catch (IllegalArgumentException e) {
+    //         httpCode = HTTPCode.BAD_REQUEST;
+    //         data = new ErrorMessage(httpCode, e.getMessage());
+    //     } catch (Exception e) {
+    //         httpCode = HTTPCode.INTERNAL_SERVER_ERROR;
+    //         data = new ErrorMessage(httpCode, e.getMessage());
+    //     }
 
-        return ResponseEntity
-                .status(httpCode.getStatus())
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(data);
-    }
+    //     return ResponseEntity
+    //             .status(httpCode.getStatus())
+    //             .contentType(MediaType.APPLICATION_JSON)
+    //             .body(data);
+    // }
 }
