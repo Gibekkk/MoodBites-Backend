@@ -32,18 +32,16 @@ public class ExternalService {
         this.mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    public List<String> getRecommendations(Map<String, Object> preferenceData) throws JsonProcessingException {
+    public List<String> getRecommendations(String userId, String mood) throws JsonProcessingException {
         // Parsing Map to JSON body
-        String jsonBody = mapper.writeValueAsString(preferenceData);
         HttpClient client = HttpClient.newBuilder()
                 .connectTimeout(Duration.ofSeconds(5))
                 .build();
         // Build POST request with no body
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(API_ORDER_HERE + "/recommend"))
+                .uri(URI.create(API_ORDER_HERE + "/recommend-external/" + mood + "/" + userId))
                 .header("Content-Type", "application/json")
                 .timeout(Duration.ofSeconds(10))
-                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
                 .build();
 
         try {
@@ -72,4 +70,45 @@ public class ExternalService {
         }
         return List.of();
     }
+
+    // public List<String> getRecommendations(Map<String, Object> preferenceData) throws JsonProcessingException {
+    //     // Parsing Map to JSON body
+    //     String jsonBody = mapper.writeValueAsString(preferenceData);
+    //     HttpClient client = HttpClient.newBuilder()
+    //             .connectTimeout(Duration.ofSeconds(5))
+    //             .build();
+    //     // Build POST request with no body
+    //     HttpRequest request = HttpRequest.newBuilder()
+    //             .uri(URI.create(API_ORDER_HERE + "/recommend"))
+    //             .header("Content-Type", "application/json")
+    //             .timeout(Duration.ofSeconds(10))
+    //             .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+    //             .build();
+
+    //     try {
+    //         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+    //         ApiResponseDTO mappedResult = mapper.readValue(response.body(), ApiResponseDTO.class);
+
+    //         // Setelah menjadi objek Java, kamu bebas mengolahnya.
+    //         // Contoh di bawah ini mengambil semua "Nama Menu" dari setiap vendor:
+    //         if (mappedResult != null && mappedResult.vendors() != null) {
+    //             return mappedResult.vendors().stream() // Loop semua vendor
+    //                     .flatMap(vendor -> vendor.standalone().stream()) // Masuk ke list standalone menu
+    //                     .map(MenuDTO::namaMenu) // Ambil properti namaMenu saja
+    //                     .collect(Collectors.toList()); // Jadikan List<String>
+    //         } else {
+    //             throw new IllegalArgumentException("False JSON Response.");
+    //         }
+    //     } catch (HttpTimeoutException e) {
+    //         // Error spesifik jika melebihi batas waktu (Read Timeout)
+    //         System.err.println("Order Here Server Timed Out.");
+    //     } catch (ConnectException e) {
+    //         // Error spesifik jika server mati atau tidak bisa disambung (Connect Timeout)
+    //         System.err.println("Failed To Connect To Order Here Servers.");
+    //     } catch (IOException | InterruptedException e) {
+    //         e.printStackTrace();
+    //     }
+    //     return List.of();
+    // }
 }
