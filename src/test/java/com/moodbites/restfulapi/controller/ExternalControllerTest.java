@@ -1,5 +1,6 @@
 package com.moodbites.restfulapi.controller;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.moodbites.restfulapi.model.User;
 import com.moodbites.restfulapi.model.enums.Mood;
 import com.moodbites.restfulapi.service.AuthService;
@@ -39,6 +40,10 @@ class ExternalControllerTest {
 
     @MockBean
     private FormService formService;
+
+    // Tambahan MockBean untuk mencegah crash akibat dependensi Firebase
+    @MockBean
+    private FirebaseMessaging firebaseMessaging;
 
     private final String BASE_URL = "/api/external";
     private User mockUser;

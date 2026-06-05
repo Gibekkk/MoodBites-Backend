@@ -1,5 +1,6 @@
 package com.moodbites.restfulapi.controller;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.moodbites.restfulapi.dto.ProfileDTO;
 import com.moodbites.restfulapi.model.OTP;
 import com.moodbites.restfulapi.model.Session;
@@ -49,6 +50,10 @@ class AuthControllerTest {
 
     @MockBean
     private EmailService emailService;
+
+    // Tambahan MockBean untuk mencegah crash akibat dependensi Firebase
+    @MockBean
+    private FirebaseMessaging firebaseMessaging;
 
     private User mockUser;
     private Session mockSession;

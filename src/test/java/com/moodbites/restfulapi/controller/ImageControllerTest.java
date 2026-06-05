@@ -1,5 +1,6 @@
 package com.moodbites.restfulapi.controller;
 
+import com.google.firebase.messaging.FirebaseMessaging;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -8,6 +9,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.TestPropertySource;
@@ -30,6 +32,10 @@ class ImageControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
+
+    // Tambahan MockBean untuk mencegah crash akibat dependensi Firebase
+    @MockBean
+    private FirebaseMessaging firebaseMessaging;
 
     private final String BASE_URL = "/api/images/";
     private byte[] dummyImageBytes;
