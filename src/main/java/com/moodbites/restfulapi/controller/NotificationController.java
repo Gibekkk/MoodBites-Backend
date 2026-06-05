@@ -1,6 +1,7 @@
 package com.moodbites.restfulapi.controller;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -48,12 +49,16 @@ public class NotificationController {
                 ArrayList<Map<String, Object>> notifications = new ArrayList<>();
                 for (Notification notification : notificationService
                         .getNotificationsByUser(session.getUserId())) {
-                    notifications.add(Map.of(
-                            "id", notification.getId(),
-                            "title", notification.getTitle(),
-                            "content", notification.getContent(),
-                            "createdAt", notification.getCreatedAt(),
-                            "seenAt", notification.getSeenAt()));
+                    
+                    // PERBAIKAN: Menggunakan HashMap agar aman dari nilai null
+                    Map<String, Object> notifMap = new HashMap<>();
+                    notifMap.put("id", notification.getId());
+                    notifMap.put("title", notification.getTitle());
+                    notifMap.put("content", notification.getContent());
+                    notifMap.put("createdAt", notification.getCreatedAt());
+                    notifMap.put("seenAt", notification.getSeenAt()); // Aman meskipun null
+                    
+                    notifications.add(notifMap);
                 }
                 data = notifications;
             } else {
@@ -126,12 +131,16 @@ public class NotificationController {
                 if (notificationOpt.isPresent()) {
                     Notification notification = notificationOpt.get();
                     notificationService.setNotificationRead(notification);
-                    data = Map.of(
-                            "id", notification.getId(),
-                            "title", notification.getTitle(),
-                            "content", notification.getContent(),
-                            "createdAt", notification.getCreatedAt(),
-                            "seenAt", notification.getSeenAt());
+                    
+                    // PERBAIKAN: Menggunakan HashMap agar aman dari nilai null
+                    Map<String, Object> notifMap = new HashMap<>();
+                    notifMap.put("id", notification.getId());
+                    notifMap.put("title", notification.getTitle());
+                    notifMap.put("content", notification.getContent());
+                    notifMap.put("createdAt", notification.getCreatedAt());
+                    notifMap.put("seenAt", notification.getSeenAt()); // Aman meskipun null
+                    
+                    data = notifMap;
                 } else {
                     httpCode = HTTPCode.NOT_FOUND;
                     data = new ErrorMessage(httpCode, "Notification Not Found");

@@ -11,10 +11,6 @@ public class SchedulingService {
 
     @Autowired
     private AuthService authService;
-
-    SchedulingService(AuthService authService) {
-        this.authService = authService;
-    } 
     
     @Scheduled(fixedRate = 5000)
     public void doSomethingEvery5Secs() {

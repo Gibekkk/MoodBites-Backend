@@ -89,6 +89,9 @@ class EmailServiceTest {
 
             EmailDetails details = new EmailDetails();
             details.setRecipient("error@example.com");
+            
+            // PERBAIKAN: Menambahkan msgBody agar MimeMessageHelper.setText tidak melempar IllegalArgumentException
+            details.setMsgBody("<p>Error body for testing</p>");
 
             // Act & Assert
             // Tidak menggunakan assertThrows karena metode mem-bypass exception menggunakan try-catch

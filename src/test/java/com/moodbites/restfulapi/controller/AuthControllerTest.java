@@ -121,7 +121,7 @@ class AuthControllerTest {
         void whenDTOInvalid_thenReturns400() throws Exception {
             // Simulasi DTO checkDTO() melemparkan error melalui mock service (karena checkDTO tidak dimock)
             when(authService.authenticateUser(any(), any(), any()))
-                    .thenThrow(new IllegalArgumentException("Format email salah"));
+                    .thenThrow(new IllegalArgumentException("Email Invalid or Exceeded Max Length"));
 
             String jsonPayload = "{\"email\":\"invalid-email\",\"password\":\"pass123\"}";
 
@@ -129,7 +129,7 @@ class AuthControllerTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(jsonPayload))
                     .andExpect(status().isBadRequest())
-                    .andExpect(jsonPath("$.message").value("Format email salah"));
+                    .andExpect(jsonPath("$.message").value("Email Invalid or Exceeded Max Length"));
         }
     }
 

@@ -97,14 +97,10 @@ class ImageControllerTest {
         @Test
         @DisplayName("Returns 500 INTERNAL SERVER ERROR for unexpected exceptions")
         void whenUnexpectedException_thenReturns500() throws Exception {
-            // Jika request path lebih pendek dari apiEndpoint, substring() akan melempar StringIndexOutOfBoundsException
-            // Karena kita melakukan setting BASE_URL sebagai "/api/images/", kita bisa memicu error 
-            // ini dengan menembak mapping yang lolos secara routing, tapi stringnya tidak lengkap.
-            // MockMvc me-mock getRequestURI(), kita bisa manipulasi via request attribute jika dibutuhkan.
-            // Namun, memicu error ini secara native bisa dilakukan dengan mengirim URI yang sengaja di-set salah di MockHttpServletRequestBuilder.
-            
-            mockMvc.perform(get(BASE_URL + "validBase64")
-                            .requestAttr("jakarta.servlet.include.request_uri", "/short")) // Memicu error parsing URL internal
+            // PERBAIKAN: Menembak endpoint langsung tanpa Base64 string dan tanpa trailing slash
+            // Ini akan memicu StringIndexOutOfBoundsException secara internal saat controller 
+            // mengeksekusi request.getRequestURI().substring(...)
+            mockMvc.perform(get("/api/images"))
                     .andExpect(status().isInternalServerError())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.message").exists());
