@@ -95,7 +95,7 @@ public ResponseEntity<Object> getPreferences(HttpServletRequest request,
  
         HTTP_CLIENT.send(webhookReq, HttpResponse.BodyHandlers.discarding());
     } catch (Exception e) {
-        System.err.println("[Webhook] Gagal: " + e.getMessage());
+        System.err.println("[Webhook] Failed: " + e.getMessage());
     }
     // ─────────────────────────────────────────────────────────────────────────
  
