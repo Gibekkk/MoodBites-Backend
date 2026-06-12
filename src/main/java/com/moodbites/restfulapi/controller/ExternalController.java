@@ -84,7 +84,7 @@ public ResponseEntity<Object> getPreferences(HttpServletRequest request,
     // ── Kirim ke webhook n8n sebelum return ───────────────────────────────────
     try {
         String payload = String.format(
-            "{\"user_id\":\"%s\",\"mood\":\"%s\"}", userId, moodEnum.toString());
+            "{\"user_id\":\"%s\",\"mood\":\"%s\"}", userId, Mood.fromString(mood).toString());
  
         HttpRequest webhookReq = HttpRequest.newBuilder()
             .uri(URI.create(MOOD_WEBHOOK))
